@@ -2,7 +2,6 @@
 #ifndef DLIST_HH
 #define DLIST_HH
 
-#include <iostream>
 #include <ostream>
 #include <memory>
 

@@ -30,6 +30,21 @@ TEST(Base, IsEmpty)
     ASSERT_FALSE(list.is_empty());
 }
 
+TEST(Base, CopyConstruct)
+{
+    DLinkedList list0;
+    list0.push_back(0);
+    list0.push_back(1);
+    list0.push_back(2);
+    list0.push_back(3);
+    list0.push_back(4);
+    DLinkedList list1 = list0;
+    ASSERT_FALSE(list1.is_empty());
+    ASSERT_EQ(list1.get_size(), list0.get_size());
+    for (size_t i = 0; i < list0.get_size(); ++i)
+        ASSERT_EQ(list0.at(i), list1.at(i));
+}
+
 
 class DLinkedListEmptyTest : public ::testing::Test {
 protected:
@@ -122,12 +137,11 @@ TEST_F(DLinkedListEmptyTest, InsertList)
     list_.insert(list, 0);
     std::cout << "list " << list << std::endl;
     std::cout << "list_ "<< list_ << std::endl;
-    ASSERT_EQ(list_.get_size(), 1);
+    ASSERT_EQ(list_.get_size(), list.get_size());
+    ASSERT_FALSE(list.is_empty());
     ASSERT_FALSE(list_.is_empty());
-    ASSERT_EQ(list_.at(0), 0);
-
-    ASSERT_EQ(list.get_size(), 0);
-    ASSERT_TRUE(list.is_empty());
+    for (size_t i = 0; i < list.get_size(); ++i)
+        ASSERT_EQ(list.at(i), list_.at(i));
 
     list_.clear();
     list.push_back(0);
@@ -138,11 +152,11 @@ TEST_F(DLinkedListEmptyTest, InsertList)
     list_.insert(list, 0);
     std::cout << "list " << list << std::endl;
     std::cout << "list_ "<< list_ << std::endl;
-    ASSERT_EQ(list_.get_size(), 3);
+    ASSERT_EQ(list_.get_size(), list.get_size());
+    ASSERT_FALSE(list.is_empty());
     ASSERT_FALSE(list_.is_empty());
-
-    ASSERT_EQ(list.get_size(), 0);
-    ASSERT_TRUE(list.is_empty());
+    for (size_t i = 0; i < list.get_size(); ++i)
+        ASSERT_EQ(list.at(i), list_.at(i));
 }
 
 
@@ -289,11 +303,11 @@ TEST_F(DLinkedListTest, InsertListAtHead)
     list_.insert(list, 0);
     std::cout << "list " << list << std::endl;
     std::cout << "list_ "<< list_ << std::endl;
-    ASSERT_EQ(list_.get_size(), ++s);
+    ASSERT_EQ(list_.get_size(), s + list.get_size());
+    ASSERT_FALSE(list.is_empty());
     ASSERT_FALSE(list_.is_empty());
-
-    ASSERT_EQ(list.get_size(), 0);
-    ASSERT_TRUE(list.is_empty());
+    for (size_t i = 0; i < list.get_size(); ++i)
+        ASSERT_EQ(list.at(i), list_.at(i));
 }
 
 TEST_F(DLinkedListTest, InsertListInMiddle)
@@ -306,14 +320,13 @@ TEST_F(DLinkedListTest, InsertListInMiddle)
     std::cout << "list " << list << std::endl;
     std::cout << "list_ "<< list_ << std::endl;
     list_.insert(list, s/2);
-    s += 3;
     std::cout << "list " << list << std::endl;
     std::cout << "list_ "<< list_ << std::endl;
-    ASSERT_EQ(list_.get_size(), s);
+    ASSERT_EQ(list_.get_size(), s + list.get_size());
+    ASSERT_FALSE(list.is_empty());
     ASSERT_FALSE(list_.is_empty());
-
-    ASSERT_EQ(list.get_size(), 0);
-    ASSERT_TRUE(list.is_empty());
+    for (size_t j = 0, i  = s/2; j < list.get_size(); ++i, ++j)
+        ASSERT_EQ(list.at(j), list_.at(i));
 }
 
 TEST_F(DLinkedListTest, InsertListAtTail)
@@ -326,12 +339,11 @@ TEST_F(DLinkedListTest, InsertListAtTail)
     std::cout << "list " << list << std::endl;
     std::cout << "list_ "<< list_ << std::endl;
     list_.insert(list, s);
-    s += 3;
     std::cout << "list " << list << std::endl;
     std::cout << "list_ "<< list_ << std::endl;
-    ASSERT_EQ(list_.get_size(), s);
+    ASSERT_EQ(list_.get_size(), s + list.get_size());
+    ASSERT_FALSE(list.is_empty());
     ASSERT_FALSE(list_.is_empty());
-
-    ASSERT_EQ(list.get_size(), 0);
-    ASSERT_TRUE(list.is_empty());
+    for (size_t j = 0, i  = s; j < list.get_size(); ++i, ++j)
+        ASSERT_EQ(list.at(j), list_.at(i));
 }

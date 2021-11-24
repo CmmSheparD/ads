@@ -11,6 +11,7 @@ namespace dlist {
 class DLinkedList {
 public:
     DLinkedList() : head_(nullptr), tail_(nullptr), size_(0) {}
+    DLinkedList(const DLinkedList& src);
     ~DLinkedList() { clear(); }
 
     void push_back(int value);

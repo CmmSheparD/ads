@@ -5,6 +5,17 @@
 
 namespace dlist {
 
+
+DLinkedList::DLinkedList(const DLinkedList& src) : size_(0)
+{
+    std::shared_ptr<Node> cur = src.head_;
+    while (cur) {
+        push_back(cur->value);
+        cur = cur->next;
+    }
+}
+
+
 void DLinkedList::push_back(int value)
 {
     std::shared_ptr<Node> node(new Node(value));
@@ -150,6 +161,7 @@ void DLinkedList::insert(DLinkedList& list, size_t i)
     else if (list.is_empty())
         return;
 
+    DLinkedList copy = list;
     std::shared_ptr<Node> prev;
     std::shared_ptr<Node> cur;
     if (i == size_) {
@@ -165,22 +177,19 @@ void DLinkedList::insert(DLinkedList& list, size_t i)
     }
     // if prev is nullptr, then inserting into the head of the list
     if (prev) {
-        prev->next = list.head_;
-        list.head_->prev = prev;
+        prev->next = copy.head_;
+        copy.head_->prev = prev;
     } else {
-        head_ = list.head_;
+        head_ = copy.head_;
     }
-    list.head_ = nullptr;
     // if cur is nullptr, then inserting into the tail of the list
     if (cur) {
-        cur->prev = list.tail_;
-        list.tail_->next = cur;
+        cur->prev = copy.tail_;
+        copy.tail_->next = cur;
     } else {
-        tail_ = list.tail_;
+        tail_ = copy.tail_;
     }
-    list.tail_ = nullptr;
-    size_ += list.size_;
-    list.size_ = 0;
+    size_ += copy.size_;
 }
 
 

@@ -5,29 +5,29 @@
 
 namespace dlist {
 
-void DLinkedList::push_back(int a)
+void DLinkedList::push_back(int value)
 {
-    std::shared_ptr<Node> n(new Node(a));
+    std::shared_ptr<Node> node(new Node(value));
     if (!tail_) {
-        head_ = n;
+        head_ = node;
     } else {
-        tail_->next = n;
-        n->prev = tail_;
+        tail_->next = node;
+        node->prev = tail_;
     }
-    tail_ = n;
+    tail_ = node;
     ++size_;
 }
 
-void DLinkedList::push_front(int a)
+void DLinkedList::push_front(int value)
 {
-    std::shared_ptr<Node> n(new Node(a));
+    std::shared_ptr<Node> node(new Node(value));
     if (!head_) {
-        tail_ = n;
+        tail_ = node;
     } else {
-        head_->prev = n;
-        n->next = head_;
+        head_->prev = node;
+        node->next = head_;
     }
-    head_ = n;
+    head_ = node;
     ++size_;
 }
 
@@ -56,15 +56,15 @@ void DLinkedList::pop_front()
 }
 
 
-void DLinkedList::insert(int a, size_t i)
+void DLinkedList::insert(int value, size_t i)
 {
     if (i > size_) // if i == size_, node will be inserted after the last
         throw std::out_of_range("Index out of range.");
     else if (i == 0)
-        return push_front(a);
+        return push_front(value);
     else if (i == size_)
-        return push_back(a);
-    std::shared_ptr<Node> n(new Node(a));
+        return push_back(value);
+    std::shared_ptr<Node> node(new Node(value));
     std::shared_ptr<Node> tmp;
     if (i == size_ - 1) {
         tmp = tail_;
@@ -73,10 +73,10 @@ void DLinkedList::insert(int a, size_t i)
         for (size_t j = 1; j != i; ++j)
             tmp = tmp->next;
     }
-    n->prev = tmp->prev;
-    n->next = tmp;
-    tmp->prev->next = n;
-    tmp->prev = n;
+    node->prev = tmp->prev;
+    node->next = tmp;
+    tmp->prev->next = node;
+    tmp->prev = node;
     ++size_;
 }
 
@@ -102,31 +102,31 @@ int DLinkedList::at(size_t i)
     if (i >= size_) {
         throw std::out_of_range("Index out of range.");
     } else if (i == 0) {
-        return head_->a;
+        return head_->value;
     } else if (i == size_ - 1) {
-        return tail_->a;
+        return tail_->value;
     }
     std::shared_ptr<Node> tmp = head_->next;
     for (size_t j = 1; j != i; ++j)
         tmp = tmp->next;
-    return tmp->a;
+    return tmp->value;
 }
 
-void DLinkedList::set(size_t i, int a)
+void DLinkedList::set(size_t i, int value)
 {
     if (i >= size_) {
         throw std::out_of_range("Index out of range.");
     } else if (i == 0) {
-        head_->a = a;
+        head_->value = value;
         return;
     } else if (i == size_ - 1) {
-        tail_->a = a;
+        tail_->value = value;
         return;
     }
     std::shared_ptr<Node> tmp = head_->next;
     for (size_t j = 1; j != i; ++j)
         tmp = tmp->next;
-    tmp->a = a;
+    tmp->value = value;
 }
 
 
@@ -184,18 +184,18 @@ void DLinkedList::insert(DLinkedList& list, size_t i)
 }
 
 
-std::ostream& operator<<(std::ostream& os, const DLinkedList& list)
+std::ostream& operator<<(std::ostream& outstream, const DLinkedList& list)
 {
-    os << "Doubly Linked List: {";
+    outstream << "Doubly Linked List: {";
     std::shared_ptr<DLinkedList::Node> tmp = list.head_;
     for (size_t i = 0; i != list.size_; ++i) {
-        os << tmp->a;
+        outstream << tmp->value;
         if (i != list.size_ - 1)
-            os << ", ";
+            outstream << ", ";
         tmp = tmp->next;
     }
-    os << "}";
-    return os;
+    outstream << "}";
+    return outstream;
 }
 
 }   // namespace dlist

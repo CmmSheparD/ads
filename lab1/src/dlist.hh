@@ -13,15 +13,15 @@ public:
     DLinkedList() : head_(nullptr), tail_(nullptr), size_(0) {}
     ~DLinkedList() { clear(); }
 
-    void push_back(int a);
-    void push_front(int a);
+    void push_back(int value);
+    void push_front(int value);
     void pop_back();
     void pop_front();
 
-    void insert(int a, size_t i);
+    void insert(int value, size_t i);
     void remove(size_t i);
     int at(size_t i);
-    void set(size_t i, int a);
+    void set(size_t i, int value);
 
     size_t get_size() { return size_; }
     void clear();
@@ -29,7 +29,7 @@ public:
 
     void insert(DLinkedList& list, size_t i);
 
-    friend std::ostream& operator<<(std::ostream& os, const DLinkedList& list);
+    friend std::ostream& operator<<(std::ostream& outstream, const DLinkedList& list);
 private:
     struct Node;
 
@@ -41,12 +41,12 @@ private:
 
 
 struct DLinkedList::Node {
-    Node(int a) : prev(nullptr), next(nullptr), a(a) {}
+    Node(int value) : prev(nullptr), next(nullptr), value(value) {}
 
     std::shared_ptr<Node> prev;
     std::shared_ptr<Node> next;
 
-    int a;
+    int value;
 };
 
 }	// namespace dlist

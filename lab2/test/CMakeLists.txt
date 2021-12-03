@@ -13,7 +13,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(ads-lab2-searches-test)
 target_sources(ads-lab2-searches-test
     PRIVATE lab2-searches-test.cpp
-#    PUBLIC ../src/dlist.hh
+    PUBLIC ../src/searches.hh
 )
 
 target_link_libraries(ads-lab2-searches-test ads-lab2-searches gtest_main)
@@ -21,7 +21,7 @@ target_link_libraries(ads-lab2-searches-test ads-lab2-searches gtest_main)
 add_executable(ads-lab2-sorts-test)
 target_sources(ads-lab2-sorts-test
     PRIVATE lab2-sorts-test.cpp
-#    PUBLIC ../src/dlist.hh
+    PUBLIC ../src/sorts.hh
 )
 
 target_link_libraries(ads-lab2-sorts-test ads-lab2-sorts gtest_main)

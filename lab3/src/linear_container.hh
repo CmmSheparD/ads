@@ -60,7 +60,6 @@ T& LinearContainer<T>::peek()
     return head_->data;
 }
 
-
 }   // namespace data_structs
 
 #endif  // CONTAINER_HH

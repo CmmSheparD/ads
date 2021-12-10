@@ -26,10 +26,10 @@ target_sources(ads-lab3-stack-test
 
 target_link_libraries(ads-lab3-stack-test gtest_main)
 
-# add_executable(ads-lab2-sorts-test)
-# target_sources(ads-lab2-sorts-test
-#     PRIVATE lab2-sorts-test.cpp
-#     PUBLIC ../src/sorts.hh
-# )
+add_executable(ads-lab3-binary-heap-test)
+target_sources(ads-lab3-binary-heap-test
+    PRIVATE lab3-binary-heap-test.cpp
+    PUBLIC ../src/binary_heap.hh
+)
 
-# target_link_libraries(ads-lab2-sorts-test ads-lab2-sorts gtest_main)
+target_link_libraries(ads-lab3-binary-heap-test ads-lab3-binary-heap gtest_main)

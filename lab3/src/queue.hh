@@ -32,7 +32,6 @@ void Queue<T>::push(T data)
     ++this->count_;
 }
 
-
 }   // namespace data_structs
 
 #endif  // QUEUE_HH

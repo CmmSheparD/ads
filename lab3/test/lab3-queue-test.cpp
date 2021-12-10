@@ -50,4 +50,5 @@ TEST_F(QueueTest, PopTest)
         ASSERT_EQ(q_.peek(), i);
         ASSERT_NO_THROW(q_.pop());
     }
+    ASSERT_TRUE(q_.is_empty());
 }

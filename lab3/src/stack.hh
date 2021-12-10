@@ -18,6 +18,7 @@ public:
     void push(T data);
 };
 
+
 template<class T>
 void Stack<T>::push(T data)
 {

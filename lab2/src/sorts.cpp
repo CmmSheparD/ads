@@ -3,60 +3,59 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
-#include <vector>
 using std::cout;
 using std::endl;
 
 namespace sorts {
 
-void quickSort(std::vector<int>& vector, size_t low, long long high)
+void quickSort(int array[], size_t n, size_t low, long long high)
 {
-    if (vector.empty())
+    if (n == 0)
         return;
     else if (high == -1)
-        high = vector.size() - 1;
-    else if (high > vector.size() - 1)
+        high = n - 1;
+    else if ((size_t)high > n - 1)
         throw std::out_of_range("High is out of range.");
-    if (low > high)
+    if ((long long)low > high)
         throw std::invalid_argument("Low is greater than high.");
     if (high - low < 1)
         return;
 
     int pivot_index;
-    int pivot_val = vector[(low + high) / 2];
+    int pivot_val = array[(low + high) / 2];
     size_t i = low;
     size_t j = high;
     while (true) {
-        while (vector[i] < pivot_val)
+        while (array[i] < pivot_val)
             ++i;
-        while (vector[j] > pivot_val)
+        while (array[j] > pivot_val)
             --j;
         if (i >= j) {
             pivot_index = j;
             break;
         }
-        int tmp = vector[i];
-        vector[i] = vector[j];
-        vector[j] = tmp;
+        int tmp = array[i];
+        array[i] = array[j];
+        array[j] = tmp;
         ++i;
         --j;
     }
-    quickSort(vector, low, pivot_index);
-    quickSort(vector, pivot_index + 1, high);
+    quickSort(array, n, low, pivot_index);
+    quickSort(array, n, pivot_index + 1, high);
 }
 
 
-void bubbleSort(std::vector<int>& vector)
+void bubbleSort(int array[], size_t n)
 {
     int buf;
     bool sorted;
     do {
         sorted = true;
-        for (size_t i = 1; i < vector.size(); ++i) {
-            if (vector[i - 1] > vector[i]) {
-                buf = vector[i - 1];
-                vector[i - 1] = vector[i];
-                vector[i] = buf;
+        for (size_t i = 1; i < n; ++i) {
+            if (array[i - 1] > array[i]) {
+                buf = array[i - 1];
+                array[i - 1] = array[i];
+                array[i] = buf;
                 sorted = false;
             }
         }
@@ -64,51 +63,53 @@ void bubbleSort(std::vector<int>& vector)
 }
 
 
-bool isSorted(std::vector<int>& vector)
+bool isSorted(int array[], size_t n)
 {
-    for (size_t i = 0; i < vector.size() - 1; ++i) {
-        if (vector[i] > vector[i + 1])
+    for (size_t i = 0; i < n - 1; ++i) {
+        if (array[i] > array[i + 1])
             return false;
     }
     return true;
 }
 
-void bogoSort(std::vector<int>& vector)
+void bogoSort(int array[], size_t n)
 {
-    if (vector.size() < 2)
+    if (n < 2)
         return;
 
     std::default_random_engine rng;
-    while (!isSorted(vector)) {
-        for (size_t i = 0; i < vector.size(); ++i) {
-            size_t rand_index = rng() % vector.size();
-            int tmp = vector[i];
-            vector[i] = vector[rand_index];
-            vector[rand_index] = tmp;
+    while (!isSorted(array, n)) {
+        for (size_t i = 0; i < n; ++i) {
+            size_t rand_index = rng() % n;
+            int tmp = array[i];
+            array[i] = array[rand_index];
+            array[rand_index] = tmp;
         }
     }
 }
 
-void countingSort(std::vector<char>& vector)
+void countingSort(char array[], size_t n)
 {
-    if (vector.size() < 2)
+    if (n < 2)
         return;
 
     // in case char is a signed type
-    int max = 0, min = 0;
-    for (char c : vector) {
-        if ((int)c > max)
-            max = c;
-        if ((int)c < min)
-            min = c;
+    int max = array[0], min = array[0];
+    for (size_t i = 1; i < n; ++i) {
+        if ((int)array[i] > max)
+            max = array[i];
+        if ((int)array[i] < min)
+            min = array[i];
     }
-    std::vector<size_t> counters(max - min + 1, (size_t)0);
-    for (char c : vector) {
-        ++counters[c - min];
+    int *counters = new int[max - min + 1];
+    for (int i = min; i < max + 1; ++i)
+        counters[i - min] = 0;
+    for (size_t i = 0; i < n; ++i) {
+        ++counters[array[i] - min];
     }
     for (int i = min, j = 0; i < max + 1; ++i) {
         while (counters[i - min]-- > 0)
-            vector[j++] = (char)i;
+            array[j++] = (char)i;
     }
 }
 

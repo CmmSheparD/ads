@@ -2,11 +2,11 @@
 #ifndef SEARCHES_HH
 #define SEARCHES_HH
 
-#include <vector>
+#include <cstddef>
 
 namespace searches {
 
-int binarySearch(const std::vector<int>& vec, int value);
+int binarySearch(int array[], size_t n, int value);
 
 }   // namespace searches
 

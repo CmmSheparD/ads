@@ -1,18 +1,17 @@
 #include <iostream>
 #include <chrono>
 #include <random>
-#include <vector>
 
 #include "sorts.hh"
 
-std::vector<int> generateRandomVector(size_t size)
+int *generateRandomArray(size_t size)
 {
-    std::vector<int> vector;
+    int *array = new int[size];
     std::default_random_engine rng;
     rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
     for (size_t i = 0; i < size; ++i)
-        vector.push_back(rng());
-    return vector;
+        array[i] = rng();
+    return array;
 }
 
 
@@ -26,11 +25,12 @@ int main()
         decltype(timer.now()) beg, fin;
         auto dur = beg - beg;
         for (int i = 0; i < 10; ++i) {
-            std::vector<int> v = generateRandomVector(s);
+            int *array = generateRandomArray(s);
             beg = timer.now();
-            sorts::quickSort(v);
+            sorts::quickSort(array, s);
             fin = timer.now();
             dur += fin - beg;
+            delete[] array;
         }
         dur /= 10;
         std::cout << std::chrono::duration_cast<std::chrono::microseconds>(dur).count() << " us" << std::endl;
@@ -41,11 +41,12 @@ int main()
         decltype(timer.now()) beg, fin;
         auto dur = beg - beg;
         for (int i = 0; i < 10; ++i) {
-            std::vector<int> v = generateRandomVector(s);
+            int *array = generateRandomArray(s);
             beg = timer.now();
-            sorts::bubbleSort(v);
+            sorts::bubbleSort(array, s);
             fin = timer.now();
             dur += fin - beg;
+            delete[] array;
         }
         dur /= 10;
         std::cout << std::chrono::duration_cast<std::chrono::microseconds>(dur).count() << " us" << std::endl;

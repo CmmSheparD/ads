@@ -2,93 +2,92 @@
 
 #include <iostream>
 #include <random>
-#include <vector>
 
 #include <gtest/gtest.h>
 
 
 TEST(SortEmpty, QuickSort)
 {
-    std::vector<int> v;
-    ASSERT_NO_THROW(sorts::quickSort(v));
+    int *a = nullptr;
+    ASSERT_NO_THROW(sorts::quickSort(a, 0));
 }
 
 TEST(SortEmpty, BubbleSort)
 {
-    std::vector<int> v;
-    ASSERT_NO_THROW(sorts::bubbleSort(v));
+    int *a = nullptr;
+    ASSERT_NO_THROW(sorts::bubbleSort(a, 0));
 }
 
 TEST(SortEmpty, Bogosort)
 {
-    std::vector<int> v;
-    ASSERT_NO_THROW(sorts::bogoSort(v));
+    int *a = nullptr;
+    ASSERT_NO_THROW(sorts::bogoSort(a, 0));
 }
 
 TEST(SortEmpty, CountingSort)
 {
-    std::vector<char> v;
-    ASSERT_NO_THROW(sorts::countingSort(v));
+    char *a = nullptr;
+    ASSERT_NO_THROW(sorts::countingSort(a, 0));
 }
 
 
 TEST(QuickSort, InvalidArguments)
 {
-    std::vector<int> v;
-    v.push_back(0);
+    int a[] = {0};
     // let the high be too big
-    ASSERT_THROW(sorts::quickSort(v, 0, 1), std::out_of_range);
+    ASSERT_THROW(sorts::quickSort(a, 1, 0, 1), std::out_of_range);
     // let low be lesser than high
-    ASSERT_THROW(sorts::quickSort(v, 1, 0), std::invalid_argument);
+    ASSERT_THROW(sorts::quickSort(a, 1, 1, 0), std::invalid_argument);
 }
 
 
 class SortTest : public ::testing::Test {
 public:
-    void SetUp()
+    void SetUp() override
     {
+        array_ = new int[100];
         std::default_random_engine rng;
         for (size_t i = 0; i < 100; ++i)
-            vector_.push_back(rng());
+            array_[i] = rng();
+    }
+    void TearDown() override
+    {
+        delete[] array_;
     }
 protected:
-    std::vector<int> vector_;
+    int *array_;
+    size_t n_;
 };
 
 TEST_F(SortTest, BubbleSort)
 {
-    ASSERT_NO_THROW(sorts::bubbleSort(vector_));
-    for (size_t i = 1; i < vector_.size(); ++i) {
-        ASSERT_TRUE(vector_[i - 1] <= vector_[i]);
-    }
+    ASSERT_NO_THROW(sorts::bubbleSort(array_, n_));
+    for (size_t i = 1; i < n_; ++i)
+        ASSERT_TRUE(array_[i - 1] <= array_[i]);
 
-    ASSERT_NO_THROW(sorts::bubbleSort(vector_));
-    for (size_t i = 1; i < vector_.size(); ++i) {
-        ASSERT_TRUE(vector_[i - 1] <= vector_[i]);
-    }
+    ASSERT_NO_THROW(sorts::bubbleSort(array_, n_));
+    for (size_t i = 1; i < n_; ++i)
+        ASSERT_TRUE(array_[i - 1] <= array_[i]);
 }
 
 TEST_F(SortTest, QuickSort)
 {
-    ASSERT_NO_THROW(sorts::quickSort(vector_));
-    for (size_t i = 1; i < vector_.size(); ++i) {
-        ASSERT_TRUE(vector_[i - 1] <= vector_[i]);
-    }
+    ASSERT_NO_THROW(sorts::quickSort(array_, n_));
+    for (size_t i = 1; i < n_; ++i)
+        ASSERT_TRUE(array_[i - 1] <= array_[i]);
 
-    ASSERT_NO_THROW(sorts::quickSort(vector_));
-    for (size_t i = 1; i < vector_.size(); ++i) {
-        ASSERT_TRUE(vector_[i - 1] <= vector_[i]);
-    }
+    ASSERT_NO_THROW(sorts::quickSort(array_, n_));
+    for (size_t i = 1; i < n_; ++i)
+        ASSERT_TRUE(array_[i - 1] <= array_[i]);
 }
 
 
 TEST(BogoSort, SortTest)
 {
-    std::vector<int> v = {10, 5, 4, 7, 0, 1, 3, 8, 9, 9};
-    ASSERT_NO_THROW(sorts::bogoSort(v));
-    for (size_t i = 1; i < v.size(); ++i) {
-        ASSERT_TRUE(v[i - 1] <= v[i]);
-    }
+    int array[] = {10, 5, 4, 7, 0, 1, 3, 8, 9, 9};
+    ASSERT_NO_THROW(sorts::bogoSort(array, 10));
+    for (size_t i = 1; i < 10; ++i)
+        ASSERT_TRUE(array[i - 1] <= array[i]);
 }
 
 
@@ -96,23 +95,30 @@ class CountingSortTest : public ::testing::Test {
 public:
     void SetUp()
     {
+        array_ = new char[1000];
         std::default_random_engine rng;
         for (size_t i = 0; i < 1000; ++i)
-            vector_.push_back(rng() % 256);
+            array_[i] = rng() % 256;
+        n_ = 1000;
+    }
+    void TearDown() override
+    {
+        delete[] array_;
     }
 protected:
-    std::vector<char> vector_;
+    char *array_;
+    size_t n_;
 };
 
 TEST_F(CountingSortTest, SortTest)
 {
-    ASSERT_NO_THROW(sorts::countingSort(vector_));
-    for (size_t i = 1; i < vector_.size(); ++i) {
-        ASSERT_TRUE(vector_[i - 1] <= vector_[i]);
+    ASSERT_NO_THROW(sorts::countingSort(array_, n_));
+    for (size_t i = 1; i < n_; ++i) {
+        ASSERT_TRUE(array_[i - 1] <= array_[i]);
     }
 
-    ASSERT_NO_THROW(sorts::countingSort(vector_));
-    for (size_t i = 1; i < vector_.size(); ++i) {
-        ASSERT_TRUE(vector_[i - 1] <= vector_[i]);
+    ASSERT_NO_THROW(sorts::countingSort(array_, n_));
+    for (size_t i = 1; i < n_; ++i) {
+        ASSERT_TRUE(array_[i - 1] <= array_[i]);
     }
 }

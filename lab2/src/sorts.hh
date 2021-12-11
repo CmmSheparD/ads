@@ -3,17 +3,17 @@
 #define SORTS_HH
 
 
-#include <vector>
+#include <cstddef>
 
 namespace sorts {
 
-void quickSort(std::vector<int>& vector, size_t low = 0, long long high = -1);
+void quickSort(int array[], size_t n, size_t low = 0, long long high = -1);
 
-void bubbleSort(std::vector<int>& vector);
+void bubbleSort(int array[], size_t n);
 
-void bogoSort(std::vector<int>& vector);
+void bogoSort(int array[], size_t n);
 
-void countingSort(std::vector<char>& vector);
+void countingSort(char array[], size_t n);
 
 }   // namespace sorts
 

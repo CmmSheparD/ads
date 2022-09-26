@@ -31,7 +31,6 @@ public:
 
     void insert(DLinkedList<T> &list, size_t i);
 
-    friend std::ostream& operator<<(std::ostream& outstream, const DLinkedList<T> &list);
 private:
     template<class U>
     struct Node;
@@ -197,7 +196,7 @@ void DLinkedList<T>::set(size_t i, T value)
         tail_->value = value;
         return;
     }
-    std::shared_ptr<Node> tmp = head_->next;
+    std::shared_ptr<Node<T>> tmp = head_->next;
     for (size_t j = 1; j != i; ++j)
         tmp = tmp->next;
     tmp->value = value;
@@ -254,6 +253,7 @@ void DLinkedList<T>::insert(DLinkedList<T> &list, size_t i)
     }
     size_ += copy.size_;
 }
+
 }	// namespace dlist
 
 #endif	// DLIST_HH

@@ -11,6 +11,4 @@ add_compile_options(
 	-Wpedantic
 )
 
-add_subdirectory(src)
-
 add_subdirectory(test)

@@ -2,18 +2,18 @@
 #ifndef DLIST_HH
 #define DLIST_HH
 
-#include <ostream>
 #include <memory>
+#include <stdexcept>
 
-namespace dlist {
+namespace list {
 
 template<class T>
-class DLinkedList {
+class LinkedList {
 public:
-    DLinkedList() : head_(nullptr), tail_(nullptr), size_(0) {}
-    DLinkedList(const DLinkedList &src);
-    DLinkedList(DLinkedList &&src);
-    ~DLinkedList() { clear(); }
+    LinkedList() : head_(nullptr), tail_(nullptr), size_(0) {}
+    LinkedList(const LinkedList &src);
+    LinkedList(LinkedList &&src);
+    ~LinkedList() { clear(); }
 
     void push_back(T value);
     void push_front(T value);
@@ -29,7 +29,7 @@ public:
     void clear();
     bool is_empty() { return size_ == 0; }
 
-    void insert(DLinkedList<T> &list, size_t i);
+    void insert(LinkedList<T> &list, size_t i);
 
 private:
     template<class U>
@@ -44,10 +44,9 @@ private:
 
 template<class T>
 template<class U>
-struct DLinkedList<T>::Node {
-    Node(U value) : prev(nullptr), next(nullptr), value(value) {}
+struct LinkedList<T>::Node {
+    Node(U value) : next(nullptr), value(value) {}
 
-    std::shared_ptr<Node> prev;
     std::shared_ptr<Node> next;
 
     U value;
@@ -55,7 +54,7 @@ struct DLinkedList<T>::Node {
 
 
 template<class T>
-DLinkedList<T>::DLinkedList(const DLinkedList<T> &src) : size_(0)
+LinkedList<T>::LinkedList(const LinkedList<T> &src) : size_(0)
 {
     std::shared_ptr<Node<T>> cur = src.head_;
     while (cur) {
@@ -65,70 +64,69 @@ DLinkedList<T>::DLinkedList(const DLinkedList<T> &src) : size_(0)
 }
 
 template<class T>
-DLinkedList<T>::DLinkedList(DLinkedList<T> &&src) : size_(src.size_)
+LinkedList<T>::LinkedList(LinkedList<T> &&src) : size_(src.size_)
 {
     head_.swap(src.head_);
     tail_.swap(src.tail_);
 }
 
 template<class T>
-void DLinkedList<T>::push_back(T value)
+void LinkedList<T>::push_back(T value)
 {
     std::shared_ptr<Node<T>> node(new Node<T>(value));
-    if (!tail_) {
+    if (!tail_)
         head_ = node;
-    } else {
+    else
         tail_->next = node;
-        node->prev = tail_;
-    }
     tail_ = node;
     ++size_;
 }
 
 template<class T>
-void DLinkedList<T>::push_front(T value)
+void LinkedList<T>::push_front(T value)
 {
     std::shared_ptr<Node<T>> node(new Node<T>(value));
-    if (!head_) {
+    if (!head_)
         tail_ = node;
-    } else {
-        head_->prev = node;
+    else
         node->next = head_;
-    }
     head_ = node;
     ++size_;
 }
 
 template<class T>
-void DLinkedList<T>::pop_back()
+void LinkedList<T>::pop_back()
 {
-    if (!is_empty()) {
-        tail_ = tail_->prev;
-        if (!tail_)
-            head_ = nullptr;
-        else
-            tail_->next = nullptr;
-        --size_;
+    if (is_empty())
+        return;
+    if (size_ == 1) {
+        head_.reset();
+        tail_.reset();
+    } else {
+        std::shared_ptr<Node<T>> cur = head_;
+        while (cur != tail_ && cur->next != tail_)
+            cur = cur->next;
+        tail_ = cur;
+        tail_->next.reset();
     }
+    --size_;
 }
 
 template<class T>
-void DLinkedList<T>::pop_front()
+void LinkedList<T>::pop_front()
 {
-    if (!is_empty()) {
-        head_ = head_->next;
-        if (!head_)
-            tail_ = nullptr;
-        else
-            head_->prev = nullptr;
-        --size_;
-    }
+    if (is_empty())
+        return;
+    head_ = head_->next;
+    if (!head_)
+        tail_.reset();
+    --size_;
 }
 
 template<class T>
-void DLinkedList<T>::insert(T value, size_t i)
+void LinkedList<T>::insert(T value, size_t i)
 {
-    if (i > size_) // if i == size_, node will be inserted after the last
+    if (i > size_) // if i == size_, node will be inserted after the last one
         throw std::out_of_range("Index out of range.");
     else if (i == 0)
         return push_front(value);
@@ -139,19 +137,17 @@ void DLinkedList<T>::insert(T value, size_t i)
     if (i == size_ - 1) {
         tmp = tail_;
     } else {
-        tmp = head_->next;
+        tmp = head_;
         for (size_t j = 1; j != i; ++j)
             tmp = tmp->next;
     }
-    node->prev = tmp->prev;
-    node->next = tmp;
-    tmp->prev->next = node;
-    tmp->prev = node;
+    node->next = tmp->next;
+    tmp->next = node;
     ++size_;
 }
 
 template<class T>
-void DLinkedList<T>::remove(size_t i)
+void LinkedList<T>::remove(size_t i)
 {
     if (i >= size_) {
         throw std::out_of_range("Index out of range.");
@@ -160,16 +156,17 @@ void DLinkedList<T>::remove(size_t i)
     } else if (i == size_ - 1) {
         return pop_back();
     }
-    std::shared_ptr<Node<T>> tmp = head_->next;
+    std::shared_ptr<Node<T>> cur = head_;
     for (size_t j = 1; j != i; ++j)
-        tmp = tmp->next;
-    tmp->prev->next = tmp->next;
-    tmp->next->prev = tmp->prev;
+        cur = cur->next;
+    std::shared_ptr<Node<T>> del = cur->next;
+    cur->next = del->next;
+    del->next.reset();
     --size_;
 }
 
 template<class T>
-T &DLinkedList<T>::at(size_t i)
+T &LinkedList<T>::at(size_t i)
 {
     if (i >= size_) {
         throw std::out_of_range("Index out of range.");
@@ -185,7 +182,7 @@ T &DLinkedList<T>::at(size_t i)
 }
 
 template<class T>
-void DLinkedList<T>::set(size_t i, T value)
+void LinkedList<T>::set(size_t i, T value)
 {
     if (i >= size_) {
         throw std::out_of_range("Index out of range.");
@@ -203,27 +200,24 @@ void DLinkedList<T>::set(size_t i, T value)
 }
 
 template<class T>
-void DLinkedList<T>::clear()
+void LinkedList<T>::clear()
 {
     if (is_empty())
         return;
     tail_.reset();
-    while (head_) {
-       head_->prev.reset();
-       head_ = head_->next;
-    }
+    head_.reset();
     size_ = 0;
 }
 
 template<class T>
-void DLinkedList<T>::insert(DLinkedList<T> &list, size_t i)
+void LinkedList<T>::insert(LinkedList<T> &list, size_t i)
 {
     if (i > size_)
         throw std::out_of_range("Index out of range.");
     else if (list.is_empty())
         return;
 
-    DLinkedList copy = list;
+    LinkedList copy = list;
     std::shared_ptr<Node<T>> prev;
     std::shared_ptr<Node<T>> cur;
     if (i == size_) {
@@ -237,18 +231,15 @@ void DLinkedList<T>::insert(DLinkedList<T> &list, size_t i)
             cur = cur->next;
         }
     }
-    // if prev is nullptr, then inserting into the head of the list
     if (prev) {
         prev->next = copy.head_;
-        copy.head_->prev = prev;
-    } else {
+    } else {    // if prev is nullptr, then inserting into the head of the list
+        copy.tail_->next = head_;
         head_ = copy.head_;
     }
-    // if cur is nullptr, then inserting into the tail of the list
     if (cur) {
-        cur->prev = copy.tail_;
         copy.tail_->next = cur;
-    } else {
+    } else {    // if cur is nullptr, then inserting into the tail of the list
         tail_ = copy.tail_;
     }
     size_ += copy.size_;

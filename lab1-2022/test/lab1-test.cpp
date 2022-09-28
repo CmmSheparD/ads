@@ -1,14 +1,14 @@
-#include "../src/dlist.hh"
+#include "../src/list.hh"
 
 #include <iostream>
 #include <stdexcept>
 
 #include <gtest/gtest.h>
 
-using dlist::DLinkedList;
+using list::LinkedList;
 using namespace std;
 
-void printList(DLinkedList<int> &list)
+void printList(LinkedList<int> &list)
 {
     cout << "{";
     for (size_t i = 0; i < list.get_size(); ++i) {
@@ -21,7 +21,7 @@ void printList(DLinkedList<int> &list)
 
 TEST(Base, Creation)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     printList(list);
     ASSERT_EQ(list.get_size(), 0);
     ASSERT_TRUE(list.is_empty());
@@ -29,13 +29,13 @@ TEST(Base, Creation)
 
 TEST(Base, GetSize)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     ASSERT_EQ(list.get_size(), 0);
 }
 
 TEST(Base, IsEmpty)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     ASSERT_TRUE(list.is_empty());
     list.push_back(0);
     ASSERT_FALSE(list.is_empty());
@@ -43,13 +43,13 @@ TEST(Base, IsEmpty)
 
 TEST(Base, CopyConstruct)
 {
-    DLinkedList<int> list0;
+    LinkedList<int> list0;
     list0.push_back(0);
     list0.push_back(1);
     list0.push_back(2);
     list0.push_back(3);
     list0.push_back(4);
-    DLinkedList<int> list1 = list0;
+    LinkedList<int> list1 = list0;
     ASSERT_FALSE(list1.is_empty());
     ASSERT_EQ(list1.get_size(), list0.get_size());
     for (size_t i = 0; i < list0.get_size(); ++i)
@@ -59,7 +59,7 @@ TEST(Base, CopyConstruct)
 
 class DLinkedListEmptyTest : public ::testing::Test {
 protected:
-    DLinkedList<int> list_;
+    LinkedList<int> list_;
 };
 
 TEST_F(DLinkedListEmptyTest, PushBack)
@@ -135,7 +135,7 @@ TEST_F(DLinkedListEmptyTest, Clear)
 
 TEST_F(DLinkedListEmptyTest, InsertList)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     ASSERT_THROW(list_.insert(list, 1), std::out_of_range);
     list_.insert(list, 0);
     cout << "list_ ";
@@ -190,7 +190,7 @@ protected:
         list_.push_back(3);
     }
 
-    DLinkedList<int> list_;
+    LinkedList<int> list_;
 };
 
 TEST_F(DLinkedListTest, PushBack)
@@ -304,7 +304,7 @@ TEST_F(DLinkedListTest, Clear)
 
 TEST_F(DLinkedListTest, InsertEmptyList)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     size_t s = list_.get_size();
     list_.insert(list, 0);
     std::cout << "list ";
@@ -317,7 +317,7 @@ TEST_F(DLinkedListTest, InsertEmptyList)
 
 TEST_F(DLinkedListTest, InsertListAtHead)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     size_t s = list_.get_size();
     list.push_back(10);
     std::cout << "list ";
@@ -338,7 +338,7 @@ TEST_F(DLinkedListTest, InsertListAtHead)
 
 TEST_F(DLinkedListTest, InsertListInMiddle)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     size_t s = list_.get_size();
     list.push_back(0);
     list.push_back(1);
@@ -361,7 +361,7 @@ TEST_F(DLinkedListTest, InsertListInMiddle)
 
 TEST_F(DLinkedListTest, InsertListAtTail)
 {
-    DLinkedList<int> list;
+    LinkedList<int> list;
     size_t s = list_.get_size();
     list.push_front(0);
     list.push_front(1);

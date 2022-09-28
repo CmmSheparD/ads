@@ -13,7 +13,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(ads-lab1-2022-test)
 target_sources(ads-lab1-2022-test
     PRIVATE lab1-test.cpp
-    PUBLIC ../src/dlist.hh
+    PUBLIC ../src/list.hh
 )
 
 target_link_libraries(ads-lab1-2022-test gtest_main)

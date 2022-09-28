@@ -10,10 +10,10 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(ads-lab1-test)
-target_sources(ads-lab1-test
+add_executable(ads-lab1-2022-test)
+target_sources(ads-lab1-2022-test
     PRIVATE lab1-test.cpp
     PUBLIC ../src/dlist.hh
 )
 
-target_link_libraries(ads-lab1-test gtest_main)
+target_link_libraries(ads-lab1-2022-test gtest_main)

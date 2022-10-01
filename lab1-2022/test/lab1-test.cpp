@@ -132,51 +132,9 @@ TEST_F(DLinkedListEmptyTest, Clear)
     printList(list_);
 }
 
-
-TEST_F(DLinkedListEmptyTest, InsertList)
+TEST_F(DLinkedListEmptyTest, Swap)
 {
-    LinkedList<int> list;
-    ASSERT_THROW(list_.insert(list, 1), std::out_of_range);
-    list_.insert(list, 0);
-    cout << "list_ ";
-    printList(list_);
-    ASSERT_EQ(list_.get_size(), 0);
-    ASSERT_TRUE(list_.is_empty());
-
-    list.push_back(0);
-    cout << "list ";
-    printList(list_);
-    cout << "list_ ";
-    printList(list_);
-    list_.insert(list, 0);
-    cout << "list ";
-    printList(list_);
-    cout << "list_ ";
-    printList(list_);
-    ASSERT_EQ(list_.get_size(), list.get_size());
-    ASSERT_FALSE(list.is_empty());
-    ASSERT_FALSE(list_.is_empty());
-    for (size_t i = 0; i < list.get_size(); ++i)
-        ASSERT_EQ(list.at(i), list_.at(i));
-
-    list_.clear();
-    list.push_back(0);
-    list.push_back(1);
-    list.push_back(2);
-    cout << "list ";
-    printList(list_);
-    cout << "list_ ";
-    printList(list_);
-    list_.insert(list, 0);
-    cout << "list ";
-    printList(list_);
-    cout << "list_ ";
-    printList(list_);
-    ASSERT_EQ(list_.get_size(), list.get_size());
-    ASSERT_FALSE(list.is_empty());
-    ASSERT_FALSE(list_.is_empty());
-    for (size_t i = 0; i < list.get_size(); ++i)
-        ASSERT_EQ(list.at(i), list_.at(i));
+    ASSERT_THROW(list_.swap(0, 1), std::out_of_range);
 }
 
 
@@ -302,82 +260,14 @@ TEST_F(DLinkedListTest, Clear)
     printList(list_);
 }
 
-TEST_F(DLinkedListTest, InsertEmptyList)
+TEST_F(DLinkedListTest, Swap)
 {
-    LinkedList<int> list;
-    size_t s = list_.get_size();
-    list_.insert(list, 0);
-    std::cout << "list ";
-    printList(list);
-    std::cout << "list_ ";
-    printList(list_);
-    ASSERT_EQ(list_.get_size(), s);
-    ASSERT_FALSE(list_.is_empty());
+    list_.swap(0, 1);
+    ASSERT_EQ(list_.at(0), 1);
+    ASSERT_EQ(list_.at(1), 0);
 }
 
-TEST_F(DLinkedListTest, InsertListAtHead)
+TEST_F(DLinkedListTest, SwaOutOfRange)
 {
-    LinkedList<int> list;
-    size_t s = list_.get_size();
-    list.push_back(10);
-    std::cout << "list ";
-    printList(list);
-    std::cout << "list_ ";
-    printList(list_);
-    list_.insert(list, 0);
-    std::cout << "list ";
-    printList(list);
-    std::cout << "list_ ";
-    printList(list_);
-    ASSERT_EQ(list_.get_size(), s + list.get_size());
-    ASSERT_FALSE(list.is_empty());
-    ASSERT_FALSE(list_.is_empty());
-    for (size_t i = 0; i < list.get_size(); ++i)
-        ASSERT_EQ(list.at(i), list_.at(i));
-}
-
-TEST_F(DLinkedListTest, InsertListInMiddle)
-{
-    LinkedList<int> list;
-    size_t s = list_.get_size();
-    list.push_back(0);
-    list.push_back(1);
-    list.push_back(2);
-    std::cout << "list ";
-    printList(list);
-    std::cout << "list_ ";
-    printList(list_);
-    list_.insert(list, s/2);
-    std::cout << "list ";
-    printList(list);
-    std::cout << "list_ ";
-    printList(list_);
-    ASSERT_EQ(list_.get_size(), s + list.get_size());
-    ASSERT_FALSE(list.is_empty());
-    ASSERT_FALSE(list_.is_empty());
-    for (size_t j = 0, i  = s/2; j < list.get_size(); ++i, ++j)
-        ASSERT_EQ(list.at(j), list_.at(i));
-}
-
-TEST_F(DLinkedListTest, InsertListAtTail)
-{
-    LinkedList<int> list;
-    size_t s = list_.get_size();
-    list.push_front(0);
-    list.push_front(1);
-    list.push_front(2);
-    std::cout << "list ";
-    printList(list);
-    std::cout << "list_ ";
-    printList(list_);
-    list_.insert(list, s);
-    std::cout << "list ";
-    printList(list);
-    std::cout << "list_ ";
-    printList(list_);
-    ASSERT_EQ(list_.get_size(), s + list.get_size());
-    ASSERT_FALSE(list.is_empty());
-    ASSERT_FALSE(list_.is_empty());
-    for (size_t j = 0, i  = s; j < list.get_size(); ++i, ++j)
-        ASSERT_EQ(list.at(j), list_.at(i));
+    ASSERT_THROW(list_.swap(0, 4), std::out_of_range);
 }

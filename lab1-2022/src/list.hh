@@ -29,8 +29,7 @@ public:
     void clear();
     bool is_empty() { return size_ == 0; }
 
-    void insert(LinkedList<T> &list, size_t i);
-
+    void swap(size_t first, size_t second);
 private:
     template<class U>
     struct Node;
@@ -210,39 +209,44 @@ void LinkedList<T>::clear()
 }
 
 template<class T>
-void LinkedList<T>::insert(LinkedList<T> &list, size_t i)
+void LinkedList<T>::swap(size_t first, size_t second)
 {
-    if (i > size_)
+    if (first >= size_ || second >= size_)
         throw std::out_of_range("Index out of range.");
-    else if (list.is_empty())
+    if (first == second)
         return;
+    if (first > second) {
+        size_t tmp = first;
+        first = second;
+        second = tmp;
+    }
+    std::shared_ptr<Node<T>> first_prev;
+    std::shared_ptr<Node<T>> first_cur;
+    std::shared_ptr<Node<T>> second_prev;
+    std::shared_ptr<Node<T>> second_cur;
 
-    LinkedList copy = list;
-    std::shared_ptr<Node<T>> prev;
-    std::shared_ptr<Node<T>> cur;
-    if (i == size_) {
-        prev = tail_;
-        cur = nullptr;
-    } else {
-        prev = nullptr;
-        cur = head_;
-        for (size_t j = 0; j != i; ++j) {
-            prev = cur;
-            cur = cur->next;
+    std::shared_ptr<Node<T>> prev = nullptr;
+    std::shared_ptr<Node<T>> cur = head_;
+    for (size_t i = 0; i < size_; ++i) {
+        if (i == first) {
+            first_prev = prev;
+            first_cur = cur;
+        } else if (i == second) {
+            second_prev = prev;
+            second_cur = cur;
         }
+        prev = cur;
+        cur = cur->next;
     }
-    if (prev) {
-        prev->next = copy.head_;
-    } else {    // if prev is nullptr, then inserting into the head of the list
-        copy.tail_->next = head_;
-        head_ = copy.head_;
-    }
-    if (cur) {
-        copy.tail_->next = cur;
-    } else {    // if cur is nullptr, then inserting into the tail of the list
-        tail_ = copy.tail_;
-    }
-    size_ += copy.size_;
+
+    if (tail_ == second_cur)
+        tail_ = first_cur;
+    if (head_ == first_cur)
+        head_ = second_cur;
+    else
+        first_prev->next = second_cur;
+    second_prev->next = first_cur;
+    first_cur->next.swap(second_cur->next);
 }
 
 }	// namespace dlist

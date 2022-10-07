@@ -262,9 +262,23 @@ TEST_F(DLinkedListTest, Clear)
 
 TEST_F(DLinkedListTest, Swap)
 {
-    list_.swap(0, 1);
-    ASSERT_EQ(list_.at(0), 1);
-    ASSERT_EQ(list_.at(1), 0);
+    list_.swap(1, 2);
+    ASSERT_EQ(list_.at(1), 2);
+    ASSERT_EQ(list_.at(2), 1);
+}
+
+TEST_F(DLinkedListTest, SwapHead)
+{
+    list_.swap(0, 2);
+    ASSERT_EQ(list_.at(0), 2);
+    ASSERT_EQ(list_.at(2), 0);
+}
+
+TEST_F(DLinkedListTest, SwapTail)
+{
+    list_.swap(1, 3);
+    ASSERT_EQ(list_.at(1), 3);
+    ASSERT_EQ(list_.at(3), 1);
 }
 
 TEST_F(DLinkedListTest, SwaOutOfRange)

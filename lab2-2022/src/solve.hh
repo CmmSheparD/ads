@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SOLVE_HH
 #define SOLVE_HH
 
@@ -5,6 +6,11 @@
 
 #include "snail.hh"
 
-double findClosestDistance(std::vector<Snail> snails);
+struct Solution {
+    enum { kOk, kNotEnough, } status;
+    double answer;
+};
+
+Solution findClosestDistance(std::vector<Snail> snails);
 
 #endif	// SOLVE_HH

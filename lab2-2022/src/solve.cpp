@@ -1,143 +1,88 @@
 #include "solve.hh"
 
 #include <algorithm>
-#include <iostream>
-#include <list>
+#include <vector>
 
 using namespace std;
 
-struct Square {
-    Square(const vector<const Snail *> snails, double w, double e, double n, double s)
-        : west_most(e), east_most(w), north_most(s), south_most(n)
-    {
-        this->snails.reserve(snails.size());
-        for (const Snail *s : snails) {
-            if (west_most > s->x) west_most = s->x;
-            if (east_most < s->x) east_most = s->x;
-            if (north_most > s->y) north_most = s->y;
-            if (south_most < s->y) south_most = s->y;
-            this->snails.push_back(s);
-        }
-    }
+struct Slice {
+    Slice(vector<const Snail *>::iterator l, vector<const Snail *>::iterator r)
+        : left(l), right(r), len(r - l)
+    {}
 
-    list<Square> split()
+    vector<Slice> split()
     {
         return {
-            //  **..
-            //  **..
-            //  ....
-            //  ....
-            filter(west_most, (west_most + east_most) / 2,
-                   north_most, (north_most + south_most) / 2),
-            //  ..**
-            //  ..**
-            //  ....
-            //  ....
-            filter((west_most + east_most) / 2, east_most,
-                   north_most, (north_most + south_most) / 2),
-            //  ....
-            //  ....
-            //  **..
-            //  **..
-            filter(west_most, (west_most + east_most) / 2,
-                   (north_most + south_most) / 2, south_most),
-            //  ....
-            //  ....
-            //  ..**
-            //  ..**
-            filter((west_most + east_most) / 2, east_most,
-                   (north_most + south_most) / 2, south_most),
-            //  .**.
-            //  .**.
-            //  ....
-            //  ....
-            filter((3 * west_most + east_most) / 4, (west_most + 3 * east_most) / 4,
-                   north_most, (north_most + south_most) / 2),
-            //  ....
-            //  ....
-            //  .**.
-            //  .**.
-            filter((3 * west_most + east_most) / 4, (west_most + 3 * east_most) / 4,
-                   (north_most + south_most) / 2, south_most),
-            //  ....
-            //  **..
-            //  **..
-            //  ....
-            filter(west_most, (west_most + east_most) / 2,
-                   (3 * north_most + south_most) / 4, (north_most + 3 * south_most) / 4),
-            //  ....
-            //  ..**
-            //  ..**
-            //  ....
-            filter((west_most + east_most) / 2, east_most,
-                   (3 * north_most + south_most) / 4, (north_most + 3 * south_most) / 4),
-            //  ....
-            //  .**.
-            //  .**.
-            //  ....
-            filter((3 * west_most + east_most) / 4, (west_most + 3 * east_most) / 4,
-                   (3 * north_most + south_most) / 4, (north_most + 3 * south_most) / 4),
+            {left, right - len / 2},
+            {right - len / 2, right}
         };
     }
 
-    Square filter(double west_most, double east_most, double north_most, double south_most)
-    {
-        
-        vector<const Snail*> slice;
-        copy_if(
-            snails.cbegin(),
-            snails.cend(),
-            back_inserter(slice),
-            [&](const Snail *snail)
-            {
-                return west_most <= snail->x && snail->x <= east_most
-                    && north_most <= snail->y && snail->y <= south_most;
-            }
-        );
-        return { slice, west_most, east_most, north_most, south_most };
-    }
-
-    vector<const Snail *> snails;
-    double west_most;
-    double east_most;
-    double north_most;
-    double south_most;
+    vector<const Snail *>::iterator left;
+    vector<const Snail *>::iterator right;
+    ptrdiff_t len;
 };
 
-Solution baseCase(Square &square)
+
+Solution baseCase(Slice &slice)
 {
-    const size_t len = square.snails.size();
-    double min = -1;
-    double tmp;
-    for (size_t i = 0; i < len - 1; ++i) {
-        for (size_t j = i + 1; j < len; ++j) {
-            tmp = square.snails[i]->distanceTo(*square.snails[j]);
-            if (min == -1 || tmp < min)
-                min = tmp;
-        }
+    vector<const Snail *>::iterator right = slice.left + 1;
+    Solution res = {
+        kOk,
+        (*slice.left)->distanceTo(**right)
+    };
+    if ((*slice.left)->y > (*right)->y) {
+        const Snail *t = *right;
+        *right = *slice.left;
+        *slice.left = t;
     }
-    return { Solution::kOk, min };
+    return res;
 }
 
-Solution findClosestDistanceInSquare(Square square)
+Solution findClosestDistanceInSquare(Slice &slice)
 {
-    if (square.snails.size() < 2)
-        return { Solution::kNotEnough, -1 };
-    if (square.snails.size() < 5)
-        return baseCase(square);
-    double min = -1;
-    Solution tmp_res;
-    for (Square &s : square.split()) {
-        tmp_res = findClosestDistanceInSquare(s);
-        if (tmp_res.status == Solution::kOk
-            && (min == -1 || tmp_res.answer < min))
-            min = tmp_res.answer;
+    if (slice.len < 2)
+        return Solution();
+    if (slice.len < 3)
+        return baseCase(slice);
+    vector<Slice> split = slice.split();
+    double mid_x = (*split[1].left)->x;
+
+    Solution res = findClosestDistanceInSquare(split[0]);
+    Solution tmp_res = findClosestDistanceInSquare(split[1]);
+    if (tmp_res.status == kOk
+        && (res.status != kOk
+        || tmp_res.answer < res.answer))
+        res = tmp_res;
+    inplace_merge(
+        slice.left,
+        split[1].left,
+        slice.right,
+        [](const Snail *a, const Snail *b)
+        {
+            return a->y < b->y;
+        }
+    );
+    for (auto i = slice.left; i != slice.right; ++i) {
+        if (abs((*i)->x - mid_x) <= res.answer) {
+            for (vector<const Snail *>::iterator j = i + 1; 
+                j != slice.right
+                && (*j)->y - (*i)->y <= res.answer;
+                ++j) {
+
+                double ans = (*i)->distanceTo(**j);
+                if (ans < res.answer)
+                    res.answer = ans;
+            }
+        }
     }
-    return { Solution::kOk, min };
+    return res;
 }
 
 Solution findClosestDistance(vector<Snail> snails)
 {
+    if (snails.size() < 2)
+        return Solution();
     vector<const Snail *> sorted(snails.size(), nullptr);
     transform(
         snails.cbegin(),
@@ -150,9 +95,11 @@ Solution findClosestDistance(vector<Snail> snails)
         sorted.end(),
         [](const Snail *first, const Snail *second)
         {
-            return first->x < second->x;
+            return first->x < second->x
+                   || first->x == second->x && first->y < second->y;
         }
     );
-    Square base_square = { sorted, 0, 1000, 0, 1000 };
-    return findClosestDistanceInSquare(base_square);
+    Slice slice = {sorted.begin(), sorted.end()};
+    Solution res = findClosestDistanceInSquare(slice);
+    return res;
 }

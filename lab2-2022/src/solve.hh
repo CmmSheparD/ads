@@ -6,9 +6,18 @@
 
 #include "snail.hh"
 
+enum SolutionStatus {
+    kOk,
+    kNotEnough, 
+};
+
 struct Solution {
-    enum { kOk, kNotEnough, } status;
+    Solution() : answer(-1), status(kNotEnough) {}
+    Solution(SolutionStatus s, double ans)
+        : answer(ans), status(s)
+    {}
     double answer;
+    SolutionStatus status;
 };
 
 Solution findClosestDistance(std::vector<Snail> snails);

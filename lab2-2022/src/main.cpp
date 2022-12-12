@@ -44,11 +44,8 @@ void measure(vector<Snail> &snails, size_t n)
     chrono::time_point<chrono::steady_clock> start = timer.now();
     Solution s = findClosestDistance(slice);
     chrono::time_point<chrono::steady_clock> finish = timer.now();
-    if (s.status == Solution::kOk)
-        cout << "Answer: " << s.answer << endl;
-    else
-        cout << "Not enough snails." << endl;
-    cout << "Finished in " << (finish - start) / chrono::milliseconds(1) << "ms" << endl;
+    cout << "Given " << n << " snails, calculated " << s.answer;
+    cout << " in " << (finish - start) / chrono::milliseconds(1) << "ms" << endl;
 }
 
 int main()
@@ -69,13 +66,9 @@ int main()
         snails = generate(n);
         cout << "Generated " << n << " snails." << endl;
     }
-    size_t step = 1000;
+    size_t step = 10000;
     for (size_t size = step; size <= snails.size(); size += step) {
-        if (size == step * 10)
-            step = size;
-        cout << "For selection of " << size << " snails:" << endl;
         measure(snails, size);
-        cout << endl;
     }
 	return 0;
 }

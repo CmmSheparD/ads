@@ -5,6 +5,10 @@
 #include <functional>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
+
+using std::cout;
+using std::endl;
 
 template<class RandIt, class Compare>
 void insertionSort(RandIt first, RandIt last, Compare cmp)
@@ -72,6 +76,41 @@ template<class BidirIt>
 void bubbleSort(BidirIt first, BidirIt last)
 {
     bubbleSort(first, last, std::less<typename BidirIt::value_type>());
+}
+
+template<class RandIt, class Compare>
+void mergeSort(RandIt first, RandIt last, Compare cmp)
+{
+    if (first >= last)
+        throw std::range_error("First iterator equals or is behind the last");
+    const typename RandIt::difference_type len = last - first;
+    if (len == 1) return;
+    if (len == 2) {
+        if (cmp(*(first + 1), *first)) std::swap(*(first + 1), *first);
+        return;
+    }
+    RandIt mid = first + (len / 2 + len % 2);
+    mergeSort(first, mid, cmp);
+    mergeSort(mid, last, cmp);
+
+    typename std::vector<typename RandIt::value_type> buffer;
+    buffer.reserve(len);
+    typename std::vector<typename RandIt::value_type>::iterator it = buffer.begin();
+    RandIt lcandidate = first, rcandidate = mid;
+    while (lcandidate != mid && rcandidate != last) {
+        *it++ = cmp(*lcandidate, *rcandidate) ? *lcandidate++ : *rcandidate++;
+    }
+    if (lcandidate == mid) lcandidate = rcandidate;
+    while (lcandidate != last) *it++ = *lcandidate++;
+    lcandidate = first;
+    it = buffer.begin();
+    while (lcandidate != last) *lcandidate++ = *it++;
+}
+
+template<class RandIt>
+void mergeSort(RandIt first, RandIt last)
+{
+    mergeSort(first, last, std::less<typename RandIt::value_type>());
 }
 
 #endif	// SORTS_HH

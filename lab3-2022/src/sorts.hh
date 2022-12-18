@@ -49,4 +49,29 @@ void selectionSort(RandIt first, RandIt last)
     selectionSort(first, last, std::less<typename RandIt::value_type>());
 }
 
+template<class BidirIt, class Compare>
+void bubbleSort(BidirIt first, BidirIt last, Compare cmp)
+{
+    if (first == last)
+        throw std::range_error("First iterator equals the last");
+    BidirIt cur, prev;
+    bool sorted;
+    do {
+        sorted = true;
+        cur = prev = first;
+        for (++cur; cur != last; ++cur, ++prev) {
+            if (cmp(*cur, *prev)) {
+                std::swap(*cur, *prev);
+                sorted = false;
+            }
+        }
+    } while (!sorted);
+}
+
+template<class BidirIt>
+void bubbleSort(BidirIt first, BidirIt last)
+{
+    bubbleSort(first, last, std::less<typename BidirIt::value_type>());
+}
+
 #endif	// SORTS_HH

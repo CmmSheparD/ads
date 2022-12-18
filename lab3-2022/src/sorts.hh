@@ -113,4 +113,29 @@ void mergeSort(RandIt first, RandIt last)
     mergeSort(first, last, std::less<typename RandIt::value_type>());
 }
 
+template<class RandIt, class Compare>
+void shellSort(RandIt first, RandIt last, Compare cmp)
+{
+    if (first >= last)
+        throw std::range_error("First iterator equals or is behind the last");
+    const typename RandIt::difference_type len = last - first;
+    typename RandIt::difference_type gap = len;
+    RandIt cur, pair;
+    while (gap != 1) {
+        gap /= 2;
+        if (gap < 1) gap = 1;
+        for (cur = first + gap; cur != last; ++cur) {
+            for (pair = cur - gap; pair >= first; pair -= gap)
+                if (cmp(*(pair + gap), *pair))
+                    std::swap(*(pair + gap), *pair);
+        }
+    }
+}
+
+template<class RandIt>
+void shellSort(RandIt first, RandIt last)
+{
+    shellSort(first, last, std::less<typename RandIt::value_type>());
+}
+
 #endif	// SORTS_HH

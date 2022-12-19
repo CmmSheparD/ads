@@ -3,12 +3,8 @@
 #define SORTS_HH
 
 #include <functional>
-#include <iostream>
 #include <stdexcept>
 #include <vector>
-
-using std::cout;
-using std::endl;
 
 template<class RandIt, class Compare>
 void insertionSort(RandIt first, RandIt last, Compare cmp)
@@ -136,6 +132,41 @@ template<class RandIt>
 void shellSort(RandIt first, RandIt last)
 {
     shellSort(first, last, std::less<typename RandIt::value_type>());
+}
+
+template<class RandIt, class Compare>
+void quickSort(RandIt first, RandIt last, Compare cmp)
+{
+    if (first >= last)
+        throw std::range_error("First iterator equals or is behind the last");
+    const typename RandIt::difference_type len = last - first;
+    if (len == 1) return;
+    if (len == 2) {
+        if (cmp(*(first + 1), *first)) std::swap(*(first + 1), *first);
+        return;
+    }
+    RandIt pivot = first + len / 2;
+    typename RandIt::value_type pivot_val = *pivot;
+    RandIt left = first, right = last - 1;
+    while (true) {
+        while (left < last && cmp(*left, pivot_val)) ++left;
+        while (right > first && cmp(pivot_val, *right)) --right;
+        if (left >= right) {
+            pivot = first == right ? right + 1 : right;
+            break;
+        }
+        std::swap(*left, *right);
+        ++left;
+        --right;
+    }
+    quickSort(first, pivot, cmp);
+    quickSort(pivot, last, cmp);
+}
+
+template<class RandIt>
+void quickSort(RandIt first, RandIt last)
+{
+    quickSort(first, last, std::less<typename RandIt::value_type>());
 }
 
 #endif	// SORTS_HH

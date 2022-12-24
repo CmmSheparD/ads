@@ -27,14 +27,14 @@ void insertionSort(RandIt first, RandIt last)
     insertionSort(first, last, std::less<typename RandIt::value_type>());
 }
 
-template<class RandIt, class Compare>
-void selectionSort(RandIt first, RandIt last, Compare cmp)
+template<class BiDirIt, class Compare>
+void selectionSort(BiDirIt first, BiDirIt last, Compare cmp)
 {
-    if (first >= last)
-        throw std::range_error("First iterator equals or is behind the last");
-    RandIt shuttle;
-    RandIt most_extreme;
-    for (RandIt unsorted = first; unsorted != last; ++unsorted) {
+    if (first == last)
+        throw std::range_error("First iterator equals the last");
+    BiDirIt shuttle;
+    BiDirIt most_extreme;
+    for (BiDirIt unsorted = first; unsorted != last; ++unsorted) {
         most_extreme = unsorted;
         for (shuttle = unsorted; shuttle != last; ++shuttle)
             if (cmp(*shuttle, *most_extreme)) most_extreme = shuttle;
@@ -43,10 +43,10 @@ void selectionSort(RandIt first, RandIt last, Compare cmp)
     }
 }
 
-template<class RandIt>
-void selectionSort(RandIt first, RandIt last)
+template<class BiDirIt>
+void selectionSort(BiDirIt first, BiDirIt last)
 {
-    selectionSort(first, last, std::less<typename RandIt::value_type>());
+    selectionSort(first, last, std::less<typename BiDirIt::value_type>());
 }
 
 template<class BidirIt, class Compare>

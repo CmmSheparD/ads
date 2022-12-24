@@ -90,16 +90,18 @@ void mergeSort(RandIt first, RandIt last, Compare cmp)
     mergeSort(mid, last, cmp);
 
     typename std::vector<typename RandIt::value_type> buffer;
-    buffer.reserve(len);
-    typename std::vector<typename RandIt::value_type>::iterator it = buffer.begin();
     RandIt lcandidate = first, rcandidate = mid;
     while (lcandidate != mid && rcandidate != last) {
-        *it++ = cmp(*lcandidate, *rcandidate) ? *lcandidate++ : *rcandidate++;
+        buffer.push_back(
+            cmp(*lcandidate, *rcandidate)
+                ? *lcandidate++
+                : *rcandidate++
+        );
     }
     if (lcandidate == mid) lcandidate = rcandidate;
-    while (lcandidate != last) *it++ = *lcandidate++;
+    while (lcandidate != last) buffer.push_back(*lcandidate++);
     lcandidate = first;
-    it = buffer.begin();
+    typename std::vector<typename RandIt::value_type>::iterator it = buffer.begin();
     while (lcandidate != last) *lcandidate++ = *it++;
 }
 

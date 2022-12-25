@@ -1,5 +1,6 @@
 #include "parsing.hh"
 
+#include <iostream>
 #include <cmath>
 #include <functional>
 #include <list>
@@ -24,6 +25,13 @@ using calculation::Operator;
 using calculation::UnaryOperator;
 using calculation::BinaryOperator;
 
+void outstring(const string &str, size_t pos)
+{
+    cout << "'";
+    for (size_t i = pos; i < str.length(); ++i)
+        cout << str[i];
+    cout << "'";
+}
 
 void init_table()
 {
@@ -97,7 +105,7 @@ shared_ptr<UnaryOperator> parse_unary(const string &str, size_t &start)
     return table::get_unary_operator(copy);
 }
 
-shared_ptr<Operand> parse_operand(const string &str, size_t &start)
+shared_ptr<Operand> parse_infix_operand(const string &str, size_t &start)
 {
     const size_t len = str.length();
     if (start >= len)
@@ -131,7 +139,7 @@ shared_ptr<Operand> parse_operand(const string &str, size_t &start)
     } else {
         try {
             shared_ptr<UnaryOperator> tmp = parse_unary(str, pos);
-            tmp->set_operand(parse_operand(str, pos));
+            tmp->set_operand(parse_infix_operand(str, pos));
 
             shared_ptr<Expression> exp(new Expression);
             exp->set_root(tmp);
@@ -205,7 +213,7 @@ shared_ptr<Operand> parse_infix_expression(const string &str, size_t start)
     /*
      * At first, there will definetly be either a constant or an unary operator
      * with its own operand. If not, there's no parsable expression anyway,
-     * so exception fallback from parse_operand is acceptable.
+     * so exception fallback from parse_infix_operand is acceptable.
      */
     size_t pos = start;
     shared_ptr<Operand> tmpoperand;
@@ -214,7 +222,7 @@ shared_ptr<Operand> parse_infix_expression(const string &str, size_t start)
     list<shared_ptr<Operand>> operands;
     do {
         pos = skip_spaces(str, pos);
-        tmpoperand = parse_operand(str, pos);
+        tmpoperand = parse_infix_operand(str, pos);
         operands.push_back(tmpoperand);
         pos = skip_spaces(str, pos);
         if (pos < len) {
@@ -253,23 +261,22 @@ shared_ptr<Operand> parse_prefix_operand(const string &str, size_t &start)
             throw OperandExpectationUnsatisfied(backup_pos);
         }
     }
+    start = pos;
     return res;
 }
 
-shared_ptr<Operand> parse_prefix_expression(const string &str, size_t start)
+shared_ptr<Operand> parse_prefix_expression_worker(const string &str, size_t &start)
 {
-
     const size_t len = str.length();
     if (len == 0)
         return shared_ptr<Operand>(new Constant(0));
-    
     size_t pos = skip_spaces(str, start);
     shared_ptr<Operand> res;
     shared_ptr<Operator> tmpoperator;
     try {
-        shared_ptr<BinaryOperator> tmp = parse_operator(str, start);
-        tmp->set_left(parse_prefix_expression(str, pos));
-        tmp->set_right(parse_prefix_expression(str, pos));
+        shared_ptr<BinaryOperator> tmp = parse_operator(str, pos);
+        tmp->set_left(parse_prefix_expression_worker(str, pos));
+        tmp->set_right(parse_prefix_expression_worker(str, pos));
         shared_ptr<Expression> exp = make_shared<Expression>();
         exp->set_root(tmp);
         res = exp;
@@ -284,7 +291,13 @@ shared_ptr<Operand> parse_prefix_expression(const string &str, size_t start)
             res = parse_prefix_operand(str, pos);
         }
     }
+    start = pos;
     return res;
+}
+
+shared_ptr<Operand> parse_prefix_expression(const string &str, size_t start)
+{
+    return parse_prefix_expression_worker(str, start);
 }
 
 }   // namespace parsing

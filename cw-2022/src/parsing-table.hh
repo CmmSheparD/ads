@@ -4,12 +4,12 @@
 
 #include <cctype>
 #include <functional>
+#include <list>
 #include <memory>
 #include <stdexcept>
 #include <string>
 
 #include "calculation-tree.hh"
-#include "list.hh"
 
 namespace parsing {
 
@@ -47,9 +47,9 @@ private:
 
     ~ParsingTable() = default;
 
-    static data_structs::List<ConstantEntry> constants_;
-    static data_structs::List<UnaryOperatorEntry> unary_operators_;
-    static data_structs::List<BinaryOperatorEntry> binary_operators_;
+    static std::list<ConstantEntry> constants_;
+    static std::list<UnaryOperatorEntry> unary_operators_;
+    static std::list<BinaryOperatorEntry> binary_operators_;
 };
 
 

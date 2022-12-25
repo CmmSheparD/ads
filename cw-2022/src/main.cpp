@@ -9,30 +9,31 @@
 
 using namespace calculation;
 using namespace parsing;
+using namespace std;
 
 int main()
 {
     init_table();
-    std::cout << std::defaultfloat;
-    std::string buffer;
-    std::shared_ptr<Operand> res;
+    cout << std::defaultfloat;
+    string buffer;
+    shared_ptr<Operand> res;
     do {
-        std::cout << "> ";
-        std::getline(std::cin, buffer);
+        cout << "> ";
+        getline(cin, buffer);
         if (buffer.empty())
             break;
         try {
-            res = parse_infix_expression(buffer);
+            res = parse_prefix_expression(buffer);
         } catch (const ParserError &e) {
-            std::cout << buffer << std::endl;
+            cout << buffer << endl;
             for (size_t i = 0; i < e.position; ++i)
-                std::cout << ' ';
-            std::cout << '^' << std::endl;
-            std::cout << e.what() << std::endl;
+                cout << ' ';
+            cout << '^' << endl;
+            cout << e.what() << endl;
             continue;
         }
-        std::cout << res->str() << std::endl;
-        std::cout << res->evaluate() << std::endl;
+        cout << res->str() << endl;
+        cout << res->evaluate() << endl;
     } while (true);
     return 0;
 }

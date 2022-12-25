@@ -1,6 +1,5 @@
 #include "parsing.hh"
 
-#include <iostream>
 #include <cmath>
 #include <functional>
 #include <list>
@@ -24,14 +23,6 @@ using calculation::Expression;
 using calculation::Operator;
 using calculation::UnaryOperator;
 using calculation::BinaryOperator;
-
-void outstring(const string &str, size_t pos)
-{
-    cout << "'";
-    for (size_t i = pos; i < str.length(); ++i)
-        cout << str[i];
-    cout << "'";
-}
 
 void init_table()
 {
@@ -93,7 +84,7 @@ shared_ptr<Constant> parse_constant(const string &str, size_t &start)
 shared_ptr<UnaryOperator> parse_unary(const string &str, size_t &start)
 {
     const size_t len = str.length();
-    size_t pos = start;
+    size_t pos = skip_spaces(str, start);
     string copy;
     copy += str[pos];
     while (!table::is_unary_operator(copy)) {
@@ -268,11 +259,12 @@ shared_ptr<Operand> parse_prefix_operand(const string &str, size_t &start)
 shared_ptr<Operand> parse_prefix_expression_worker(const string &str, size_t &start)
 {
     const size_t len = str.length();
-    if (len == 0)
-        return shared_ptr<Operand>(new Constant(0));
     size_t pos = skip_spaces(str, start);
+    if (len - pos == 0)
+        throw OperandExpectationUnsatisfied(pos);
     shared_ptr<Operand> res;
     shared_ptr<Operator> tmpoperator;
+    size_t backup_pos = pos;
     try {
         shared_ptr<BinaryOperator> tmp = parse_operator(str, pos);
         tmp->set_left(parse_prefix_expression_worker(str, pos));
@@ -281,13 +273,15 @@ shared_ptr<Operand> parse_prefix_expression_worker(const string &str, size_t &st
         exp->set_root(tmp);
         res = exp;
     } catch (const ParserError &) {
+        pos = backup_pos;
         try {
             shared_ptr<UnaryOperator> tmp = parse_unary(str, pos);
-            tmp->set_operand(parse_prefix_expression(str, pos));
+            tmp->set_operand(parse_prefix_expression_worker(str, pos));
             shared_ptr<Expression> exp = make_shared<Expression>();
             exp->set_root(tmp);
             res = exp;
         } catch (const ParserError &) {
+            pos = backup_pos;
             res = parse_prefix_operand(str, pos);
         }
     }
@@ -295,9 +289,153 @@ shared_ptr<Operand> parse_prefix_expression_worker(const string &str, size_t &st
     return res;
 }
 
-shared_ptr<Operand> parse_prefix_expression(const string &str, size_t start)
+shared_ptr<Operand> parse_prefix_expression(const string &str)
 {
+    size_t start = 0;
     return parse_prefix_expression_worker(str, start);
+}
+
+
+shared_ptr<UnaryOperator> parse_postfix_unary(const string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    size_t pos = skip_spaces(rev, start);
+    string copy;
+    copy += rev[pos];
+    while (!table::is_unary_operator(copy)) {
+        if (++pos >= len)
+            throw UnexpectedEndOfExpression(pos);
+        copy.insert(copy.begin(), rev[pos]);
+    }
+    start = pos + 1;
+    return table::get_unary_operator(copy);
+}
+
+shared_ptr<BinaryOperator> parse_postfix_operator(const string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    if (start >= len)
+        throw UnexpectedEndOfExpression(len);
+    size_t pos = skip_spaces(rev, start);
+    if (pos >= len)
+        throw BinaryExpectationUnsatisfied(start);
+
+    string copy;
+    copy += rev[pos];
+    while (!table::is_binary_operator(copy)) {
+        if (++pos >= len)
+            throw UnexpectedEndOfExpression(pos);
+        copy.insert(copy.begin(), rev[pos]);
+    }
+    start = pos + 1;
+    return table::get_binary_operator(copy);
+}
+
+shared_ptr<Constant> parse_postfix_value(const string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    size_t processed = 0;
+    double val;
+    try {
+        string buffer;
+        char c;
+        while (start + processed < len) {
+            c = rev[start + processed];
+            if (!isdigit(c) && c != '.')
+                break;
+            buffer.insert(buffer.begin(), c);
+            ++processed;
+        }
+        val = stod(buffer, &processed);
+    } catch (out_of_range &) {
+        throw TooBigNumber(start);
+    }
+    shared_ptr<Constant> res = make_shared<Constant>(
+        val,
+        string(rev, start - processed + 1, processed)
+    );
+    start += processed;
+    return res;
+}
+
+shared_ptr<Constant> parse_postfix_constant(const string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    size_t pos = start;
+    string copy;
+    copy += rev[pos];
+    while (!table::is_constant(copy)) {
+        if (++pos >= len)
+            throw UnexpectedEndOfExpression(pos);
+        copy.insert(copy.begin(), rev[pos]);
+    }
+    start = pos + 1;
+    return table::get_constant(copy);
+}
+
+shared_ptr<Operand> parse_postfix_operand(const string &str, size_t &start)
+{
+    const size_t len = str.length();
+    if (start >= len)
+        throw UnexpectedEndOfExpression(start);
+    size_t pos = skip_spaces(str, start);
+    if (pos >= len)
+        throw OperandExpectationUnsatisfied(pos);
+    
+    size_t backup_pos = pos;
+    shared_ptr<Operand> res;
+    try {
+        res = parse_postfix_constant(str, pos);
+    } catch (const ParserError &) {
+        pos = backup_pos;
+        try {
+            res = parse_postfix_value(str, pos);
+        } catch (const UnexpectedEndOfExpression&) {
+            throw OperandExpectationUnsatisfied(backup_pos);
+        }
+    }
+    start = pos;
+    return res;
+}
+
+std::shared_ptr<calculation::Operand> parse_postfix_expression_worker(const std::string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    size_t pos = skip_spaces(rev, start);
+    if (len - pos == 0)
+        throw OperandExpectationUnsatisfied(start);
+    shared_ptr<Operand> res;
+    shared_ptr<Operator> tmpoperator;
+    size_t backup_pos = pos;
+    try {
+        shared_ptr<BinaryOperator> tmp = parse_postfix_operator(rev, pos);
+        tmp->set_right(parse_postfix_expression_worker(rev, pos));
+        tmp->set_left(parse_postfix_expression_worker(rev, pos));
+        shared_ptr<Expression> exp = make_shared<Expression>();
+        exp->set_root(tmp);
+        res = exp;
+    } catch (const ParserError &) {
+        pos = backup_pos;
+        try {
+            shared_ptr<UnaryOperator> tmp = parse_postfix_unary(rev, pos);
+            tmp->set_operand(parse_postfix_expression_worker(rev, pos));
+            shared_ptr<Expression> exp = make_shared<Expression>();
+            exp->set_root(tmp);
+            res = exp;
+        } catch (const ParserError &) {
+            pos = backup_pos;
+            res = parse_postfix_operand(rev, pos);
+        }
+    }
+    start = pos;
+    return res;
+}
+
+std::shared_ptr<calculation::Operand> parse_postfix_expression(const std::string &str)
+{
+    size_t start = 0;
+    string rev(str.rbegin(), str.rend());
+    return parse_postfix_expression_worker(rev, start);
 }
 
 }   // namespace parsing

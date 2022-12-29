@@ -16,6 +16,6 @@ Expression parseInfixExpression(const std::string &str, size_t start = 0);
 
 Expression parsePrefixExpression(const std::string &str);
 
-// Expression parse_postfix_expression(const std::string &str);
+Expression parsePostfixExpression(const std::string &str);
 
 #endif  // PARSING_HH

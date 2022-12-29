@@ -282,14 +282,14 @@ void fillTreeFromPrefixList(list<Component>::iterator &first,
                             size_t depth = 0, int mod = 0)
 {
     tree.insert(first->getPriority() + mod, *first);
-    cout << "Inserted local root " << first->str() << endl;
+    cout << "Inserted local root " << first->str() << " <-" << first->getPriority() + mod << endl;
     if (first->getType() != Component::kOperator) {
         ++first;
         return;
     }
     ++first;
-    fillTreeFromPrefixList(first, tree, max_depth, depth + 1, -pow(2, max_depth - depth));
-    fillTreeFromPrefixList(first, tree, max_depth, depth + 1, pow(2, max_depth - depth));
+    fillTreeFromPrefixList(first, tree, max_depth, depth + 1, mod - pow(2, max_depth - depth));
+    fillTreeFromPrefixList(first, tree, max_depth, depth + 1, mod + pow(2, max_depth - depth));
 }
 
 BST<int, Component> createTreeFromPrefixList(list<Component> &components)
@@ -309,144 +309,147 @@ Expression parsePrefixExpression(const string &str)
 }
 
 
-// shared_ptr<UnaryOperator> parse_postfix_unary(const string &rev, size_t &start)
-// {
-//     const size_t len = rev.length();
-//     size_t pos = skipSpaces(rev, start);
-//     string copy;
-//     copy += rev[pos];
-//     while (!table::is_unary_operator(copy)) {
-//         if (++pos >= len)
-//             throw UnexpectedEndOfExpression(pos);
-//         copy.insert(copy.begin(), rev[pos]);
-//     }
-//     start = pos + 1;
-//     return table::get_unary_operator(copy);
-// }
+Component parsePostfixOperator(const string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    if (start >= len)
+        throw UnexpectedEndOfExpression(len);
+    size_t pos = skipSpaces(rev, start);
+    if (pos >= len)
+        throw OperatorExpectationUnsatisfied(start);
 
-// shared_ptr<BinaryOperator> parse_postfix_operator(const string &rev, size_t &start)
-// {
-//     const size_t len = rev.length();
-//     if (start >= len)
-//         throw UnexpectedEndOfExpression(len);
-//     size_t pos = skipSpaces(rev, start);
-//     if (pos >= len)
-//         throw OperatorExpectationUnsatisfied(start);
+    string copy;
+    copy += rev[pos];
+    while (!table::is_operator(copy)) {
+        if (++pos >= len)
+            throw UnexpectedEndOfExpression(pos);
+        copy.insert(copy.begin(), rev[pos]);
+    }
+    start = pos + 1;
+    return table::get_operator(copy);
+}
 
-//     string copy;
-//     copy += rev[pos];
-//     while (!table::is_binary_operator(copy)) {
-//         if (++pos >= len)
-//             throw UnexpectedEndOfExpression(pos);
-//         copy.insert(copy.begin(), rev[pos]);
-//     }
-//     start = pos + 1;
-//     return table::get_binary_operator(copy);
-// }
+Component parsePostfixValue(const string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    size_t processed = 0;
+    double val;
+    try {
+        string buffer;
+        char c;
+        while (start + processed < len) {
+            c = rev[start + processed];
+            if (!isdigit(c) && c != '.')
+                break;
+            buffer.insert(buffer.begin(), c);
+            ++processed;
+        }
+        val = stod(buffer, &processed);
+    } catch (out_of_range &) {
+        throw TooBigNumber(start);
+    }
+    Component res(string(rev, start - processed + 1, processed), 0, Component::kOperand);
+    start += processed;
+    return res;
+}
 
-// shared_ptr<Constant> parse_postfix_value(const string &rev, size_t &start)
-// {
-//     const size_t len = rev.length();
-//     size_t processed = 0;
-//     double val;
-//     try {
-//         string buffer;
-//         char c;
-//         while (start + processed < len) {
-//             c = rev[start + processed];
-//             if (!isdigit(c) && c != '.')
-//                 break;
-//             buffer.insert(buffer.begin(), c);
-//             ++processed;
-//         }
-//         val = stod(buffer, &processed);
-//     } catch (out_of_range &) {
-//         throw TooBigNumber(start);
-//     }
-//     shared_ptr<Constant> res = make_shared<Constant>(
-//         val,
-//         string(rev, start - processed + 1, processed)
-//     );
-//     start += processed;
-//     return res;
-// }
+Component parsePostfixConstant(const string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    size_t pos = start;
+    string copy;
+    copy += rev[pos];
+    while (!table::is_constant(copy)) {
+        if (++pos >= len)
+            throw UnexpectedEndOfExpression(pos);
+        copy.insert(copy.begin(), rev[pos]);
+    }
+    start = pos + 1;
+    return table::get_constant(copy);
+}
 
-// shared_ptr<Constant> parse_postfix_constant(const string &rev, size_t &start)
-// {
-//     const size_t len = rev.length();
-//     size_t pos = start;
-//     string copy;
-//     copy += rev[pos];
-//     while (!table::is_constant(copy)) {
-//         if (++pos >= len)
-//             throw UnexpectedEndOfExpression(pos);
-//         copy.insert(copy.begin(), rev[pos]);
-//     }
-//     start = pos + 1;
-//     return table::get_constant(copy);
-// }
-
-// shared_ptr<Operand> parse_postfix_operand(const string &str, size_t &start)
-// {
-//     const size_t len = str.length();
-//     if (start >= len)
-//         throw UnexpectedEndOfExpression(start);
-//     size_t pos = skipSpaces(str, start);
-//     if (pos >= len)
-//         throw OperandExpectationUnsatisfied(pos);
+Component parsePostfixOperand(const string &str, size_t &start)
+{
+    const size_t len = str.length();
+    if (start >= len)
+        throw UnexpectedEndOfExpression(start);
+    size_t pos = skipSpaces(str, start);
+    if (pos >= len)
+        throw OperandExpectationUnsatisfied(pos);
     
-//     size_t backup_pos = pos;
-//     shared_ptr<Operand> res;
-//     try {
-//         res = parse_postfix_constant(str, pos);
-//     } catch (const ParserError &) {
-//         pos = backup_pos;
-//         try {
-//             res = parse_postfix_value(str, pos);
-//         } catch (const UnexpectedEndOfExpression&) {
-//             throw OperandExpectationUnsatisfied(backup_pos);
-//         }
-//     }
-//     start = pos;
-//     return res;
-// }
+    size_t backup_pos = pos;
+    Component res;
+    try {
+        res = parsePostfixConstant(str, pos);
+    } catch (const ParserError &) {
+        pos = backup_pos;
+        try {
+            res = parsePostfixValue(str, pos);
+        } catch (const UnexpectedEndOfExpression&) {
+            throw OperandExpectationUnsatisfied(backup_pos);
+        }
+    }
+    start = pos;
+    return res;
+}
 
-// std::shared_ptr<calculation::Operand> parse_postfix_expression_worker(const std::string &rev, size_t &start)
-// {
-//     const size_t len = rev.length();
-//     size_t pos = skipSpaces(rev, start);
-//     if (len - pos == 0)
-//         throw OperandExpectationUnsatisfied(start);
-//     shared_ptr<Operand> res;
-//     shared_ptr<Operator> tmpoperator;
-//     size_t backup_pos = pos;
-//     try {
-//         shared_ptr<BinaryOperator> tmp = parse_postfix_operator(rev, pos);
-//         tmp->set_right(parse_postfix_expression_worker(rev, pos));
-//         tmp->set_left(parse_postfix_expression_worker(rev, pos));
-//         shared_ptr<Expression> exp = make_shared<Expression>();
-//         exp->set_root(tmp);
-//         res = exp;
-//     } catch (const ParserError &) {
-//         pos = backup_pos;
-//         try {
-//             shared_ptr<UnaryOperator> tmp = parse_postfix_unary(rev, pos);
-//             tmp->set_operand(parse_postfix_expression_worker(rev, pos));
-//             shared_ptr<Expression> exp = make_shared<Expression>();
-//             exp->set_root(tmp);
-//             res = exp;
-//         } catch (const ParserError &) {
-//             pos = backup_pos;
-//             res = parse_postfix_operand(rev, pos);
-//         }
-//     }
-//     start = pos;
-//     return res;
-// }
+list<Component> parsePostfixExpressionToList(const std::string &rev, size_t &start)
+{
+    const size_t len = rev.length();
+    size_t pos = skipSpaces(rev, start);
+    out(rev, pos);
+    if (len - pos == 0)
+        throw OperandExpectationUnsatisfied(pos);
+    list<Component> res;
+    size_t backup_pos = pos;
+    try {
+        res.push_back(parsePostfixOperator(rev, pos));
+        cout << "Parsed operator" << endl;
+        list<Component> tmp = parsePostfixExpressionToList(rev, pos);
+        for (Component c : tmp) res.push_back(c);
+        cout << "Parsed first operand" << endl;
+        tmp = parsePostfixExpressionToList(rev, pos);
+        for (Component c : tmp) res.push_back(c);
+        cout << "Parsed second operand" << endl;
+    } catch (const ParserError &) {
+        pos = backup_pos;
+        res.push_back(parsePostfixOperand(rev, pos));
+    }
+    start = pos;
+    return res;
+}
 
-// std::shared_ptr<calculation::Operand> parse_postfix_expression(const std::string &str)
-// {
-//     size_t start = 0;
-//     string rev(str.rbegin(), str.rend());
-//     return parse_postfix_expression_worker(rev, start);
-// }
+void fillTreeFromPostfixList(list<Component>::iterator &first,
+                             BST<int, Component> &tree, size_t max_depth,
+                             size_t depth = 0, int mod = 0)
+{
+    tree.insert(first->getPriority() + mod, *first);
+    cout << "Inserted local root " << first->str() << " <- " << first->getPriority() + mod << endl;
+    if (first->getType() != Component::kOperator) {
+        ++first;
+        return;
+    }
+    ++first;
+    fillTreeFromPostfixList(first, tree, max_depth, depth + 1, mod + pow(2, max_depth - depth));
+    fillTreeFromPostfixList(first, tree, max_depth, depth + 1, mod - pow(2, max_depth - depth));
+}
+
+BST<int, Component> createTreeFromPostfixList(list<Component> &components)
+{
+    BST<int, Component> tree;
+    list<Component>::iterator it = components.begin();
+    fillTreeFromPostfixList(it, tree, components.size());
+    return tree;
+}
+
+Expression parsePostfixExpression(const std::string &str)
+{
+    size_t start = 0;
+    string rev(str.rbegin(), str.rend());
+    list<Component> tmp = parsePostfixExpressionToList(rev, start);
+    for (Component c : tmp)
+        cout << c.str() << ' ';
+    cout << endl;
+    BST<int, Component> tree = createTreeFromPostfixList(tmp);
+    return Expression(tree);
+}

@@ -10,9 +10,9 @@ using namespace std;
 
 int main()
 {
-    string s = "* - 2 3 4";
+    string s = "2 3 - 4 *";
     init_table();
-    Expression e = parsePrefixExpression(s);
+    Expression e = parsePostfixExpression(s);
     cout << e.asPostfix() << endl;
     cout << e.asInfix() << endl;
     cout << e.asPrefix() << endl;

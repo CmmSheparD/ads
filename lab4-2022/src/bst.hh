@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 template<class Key, class Value>
 class BST {
 public:
@@ -28,6 +26,8 @@ public:
     BST() : root_(nullptr), n_(0) {}
     BST(const BST &other);
     BST(BST &&other);
+    BST &operator=(const BST &other);
+    BST &operator=(BST &&other);
     
     ~BST() = default;
 
@@ -42,6 +42,7 @@ public:
     Value findPrev(Key key) const;
 
     size_t height() const;
+    void clear();
     std::vector<std::string> visualize() const;
 private:
     template<class K, class V>
@@ -82,6 +83,25 @@ template<class Key, class Value>
 BST<Key, Value>::BST(BST &&other) : n_(other.n_)
 {
     root_.swap(other.root_);
+}
+
+template<class Key, class Value>
+BST<Key, Value> &BST<Key, Value>::operator=(const BST<Key, Value> &other)
+{
+    PrefixIterator it = other.prefixBegin();
+    clear();
+    while (it) {
+        insert(it.key(), *it);
+        ++it;
+    }
+    return *this;
+}
+
+template<class Key, class Value>
+BST<Key, Value> &BST<Key, Value>::operator=(BST<Key, Value> &&other)
+{
+    root_.swap(other.root_);
+    return *this;
 }
 
 template<class Key, class Value>
@@ -191,6 +211,20 @@ size_t BST<Key, Value>::height() const
 }
 
 template<class Key, class Value>
+void BST<Key, Value>::clear()
+{
+    if (n_ == 0) return;
+    n_ = 0;
+    PostfixIterator it = postfixBegin();
+    while (it) {
+        Key key = it.key();
+        ++it;
+        remove(key);
+    }
+    root_ = nullptr;
+}
+
+template<class Key, class Value>
 std::vector<std::string> BST<Key, Value>::visualize() const
 {
     if (n_ == 0) throw EmptyContainerError();
@@ -218,7 +252,7 @@ std::vector<std::string> BST<Key, Value>::visualize() const
             if (drawQueue[n] == nullptr) {
                 fmt << "";
             } else {
-                fmt << drawQueue[n]->key;
+                fmt << drawQueue[n]->data;
                 size_t l = fmt.str().length();
                 if (l > node_len) node_len = l;
             }
@@ -229,13 +263,13 @@ std::vector<std::string> BST<Key, Value>::visualize() const
     // Max width that a layer can achieve
     size_t max_width = node_len * strings.rbegin()->size()
                        + strings.rbegin()->size() - 1;
-    std::vector<string> res;
+    std::vector<std::string> res;
     /*
      * On every layer get the spacer length and join every string on the layer
      * and apply spacing plus the difference between the max node length and
      * current node length
      */
-    for (std::vector<string> layer : strings) {
+    for (std::vector<std::string> layer : strings) {
         std::string spacer(
             (max_width - node_len * layer.size()) / (layer.size() + 1),
             ' ');

@@ -10,7 +10,20 @@
 
 class Expression {
 public:
+    Expression() = default;
     Expression(BST<int, Component> tree) : tree_(tree) {}
+    Expression(const Expression &other) = default;
+    Expression(Expression &&other) = default;
+    Expression &operator=(const Expression &other) {
+        tree_ = other.tree_;
+        return *this;
+    }
+    Expression &operator=(Expression &&other) {
+        tree_ = other.tree_;
+        return *this;
+    }
+
+    std::vector<std::string> visualize() const { return tree_.visualize(); }
 
     std::string asPrefix();
     std::string asInfix();

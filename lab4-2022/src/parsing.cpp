@@ -1,6 +1,5 @@
 #include "parsing.hh"
 
-#include <iostream>
 #include <cmath>
 #include <list>
 #include <string>
@@ -14,21 +13,11 @@ using namespace std;
 
 void init_table()
 {
-    table::register_constant("pi");
-    table::register_constant("e");
-
     table::register_operator("^", 1);
     table::register_operator("*", 2);
     table::register_operator("/", 2);
     table::register_operator("+", 3);
     table::register_operator("-", 3);
-}
-
-void out(string s, size_t from)
-{
-    for (size_t i = from; i < s.length(); ++i)
-        cout << s[i];
-    cout << endl;
 }
 
 size_t skipSpaces(const string &str, size_t start)
@@ -43,10 +32,9 @@ size_t skipSpaces(const string &str, size_t start)
 Component parseValue(const string &str, size_t &start)
 {
     size_t processed = 0;
-    double val;
     try {
         string buffer(str, start, str.size() - start);
-        val = stod(buffer, &processed);
+        stod(buffer, &processed);
     } catch (out_of_range &) {
         throw TooBigNumber(start);
     }
@@ -143,10 +131,10 @@ list<pair<int, Component>> applyBrackets(const list<Component> &components)
     list<Component>::const_iterator it = components.cbegin();
     for (; it != components.end(); ++it) {
         if (it->str() == "(") {
-            --modifier;
+            modifier -= 5;
             ++counter;
         } else if (it->str() == ")") {
-            ++modifier;
+            modifier += 5;
             --counter;
         } else {
             res.push_back({it->getPriority() + modifier, *it});
@@ -253,7 +241,6 @@ list<Component> parsePrefixExpressionToList(const string &str, size_t &start)
 {
     const size_t len = str.length();
     size_t pos = skipSpaces(str, start);
-    out(str, pos);
     if (len - pos == 0)
         throw OperandExpectationUnsatisfied(pos);
     list<Component> res;
@@ -262,13 +249,10 @@ list<Component> parsePrefixExpressionToList(const string &str, size_t &start)
     try {
         list<Component> tmp = parseInfixOperator(str, pos);
         for (Component c : tmp) res.push_back(c);
-        cout << "Parsed operator" << endl;
         tmp = parsePrefixExpressionToList(str, pos);
         for (Component c : tmp) res.push_back(c);
-        cout << "Parsed first operand" << endl;
         tmp = parsePrefixExpressionToList(str, pos);
         for (Component c : tmp) res.push_back(c);
-        cout << "Parsed second operand" << endl;
     } catch (const ParserError &) {
         pos = backup_pos;
         res.push_back(parsePrefixOperand(str, pos));
@@ -282,7 +266,6 @@ void fillTreeFromPrefixList(list<Component>::iterator &first,
                             size_t depth = 0, int mod = 0)
 {
     tree.insert(first->getPriority() + mod, *first);
-    cout << "Inserted local root " << first->str() << " <-" << first->getPriority() + mod << endl;
     if (first->getType() != Component::kOperator) {
         ++first;
         return;
@@ -333,7 +316,6 @@ Component parsePostfixValue(const string &rev, size_t &start)
 {
     const size_t len = rev.length();
     size_t processed = 0;
-    double val;
     try {
         string buffer;
         char c;
@@ -344,7 +326,7 @@ Component parsePostfixValue(const string &rev, size_t &start)
             buffer.insert(buffer.begin(), c);
             ++processed;
         }
-        val = stod(buffer, &processed);
+        stod(buffer, &processed);
     } catch (out_of_range &) {
         throw TooBigNumber(start);
     }
@@ -397,20 +379,16 @@ list<Component> parsePostfixExpressionToList(const std::string &rev, size_t &sta
 {
     const size_t len = rev.length();
     size_t pos = skipSpaces(rev, start);
-    out(rev, pos);
     if (len - pos == 0)
         throw OperandExpectationUnsatisfied(pos);
     list<Component> res;
     size_t backup_pos = pos;
     try {
         res.push_back(parsePostfixOperator(rev, pos));
-        cout << "Parsed operator" << endl;
         list<Component> tmp = parsePostfixExpressionToList(rev, pos);
         for (Component c : tmp) res.push_back(c);
-        cout << "Parsed first operand" << endl;
         tmp = parsePostfixExpressionToList(rev, pos);
         for (Component c : tmp) res.push_back(c);
-        cout << "Parsed second operand" << endl;
     } catch (const ParserError &) {
         pos = backup_pos;
         res.push_back(parsePostfixOperand(rev, pos));
@@ -424,7 +402,6 @@ void fillTreeFromPostfixList(list<Component>::iterator &first,
                              size_t depth = 0, int mod = 0)
 {
     tree.insert(first->getPriority() + mod, *first);
-    cout << "Inserted local root " << first->str() << " <- " << first->getPriority() + mod << endl;
     if (first->getType() != Component::kOperator) {
         ++first;
         return;
@@ -447,9 +424,6 @@ Expression parsePostfixExpression(const std::string &str)
     size_t start = 0;
     string rev(str.rbegin(), str.rend());
     list<Component> tmp = parsePostfixExpressionToList(rev, start);
-    for (Component c : tmp)
-        cout << c.str() << ' ';
-    cout << endl;
     BST<int, Component> tree = createTreeFromPostfixList(tmp);
     return Expression(tree);
 }

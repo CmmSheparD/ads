@@ -2,6 +2,7 @@
 #ifndef COMPONENT_HH
 #define COMPONENT_HH
 
+#include <ostream>
 #include <string>
 
 class Component {
@@ -29,5 +30,7 @@ protected:
     int priority_;
     Type type_;
 };
+
+std::ostream &operator<<(std::ostream &os, const Component &c);
 
 #endif  // COMPONENT_HH

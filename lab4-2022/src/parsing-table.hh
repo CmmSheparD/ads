@@ -4,13 +4,10 @@
 
 #include <cctype>
 #include <list>
-#include <memory>
 #include <stdexcept>
 #include <string>
 
 #include "component.hh"
-
-namespace parsing {
 
 /*
  * A static table that holds entries on how to decode text into math
@@ -58,7 +55,5 @@ public:
         : invalid_argument("No such name found \"" + name + "\".")
     {}
 };
-
-}   // namespace parsing
 
 #endif  // PARSING_TABLE_HH

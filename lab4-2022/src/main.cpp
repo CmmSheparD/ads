@@ -3,28 +3,18 @@
 #include <vector>
 
 #include "bst.hh"
+#include "parsing.hh"
 
 using namespace std;
 
 
 int main()
 {
-    BST<int, int> a;
-    for (int i = 0; i < 5; ++i)
-        a.insert(i, i);
-    for (int i = -1; i > -5; --i)
-        a.insert(i, i);
-    a.insert(4, 1);
-    a.insert(2, 2);
-    a.insert(1, 4);
-    a.insert(3, 8);
-    a.insert(7, 5);
-    auto it = a.breadthBegin();
-    while (it) {
-        cout << it.key() << ' ' << *it << endl;
-        ++it;
-    }
-    auto r = a.visualize();
-    for (auto s : r) cout << s << endl;
+    string s = "* - 2 3 4";
+    init_table();
+    Expression e = parsePrefixExpression(s);
+    cout << e.asPostfix() << endl;
+    cout << e.asInfix() << endl;
+    cout << e.asPrefix() << endl;
     return 0;
 }

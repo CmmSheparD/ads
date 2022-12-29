@@ -8,19 +8,22 @@ class Component {
 public:
     enum Type {
         kOperand,
-        kOperator
+        kOperator,
+        kSpecial
     };
 
+    Component() = default;
     Component(std::string repr, int priority, Type type)
         : repr_(repr), priority_(priority), type_(type)
     {}
+    Component &operator=(const Component &other) = default;
 
-    int getPriority() { return priority_; }
+    int getPriority() const { return priority_; }
     void setPriority(int priority);
 
-    Type getType() { return type_; }
+    Type getType() const { return type_; }
 
-    std::string str() { return repr_; }
+    std::string str() const { return repr_; }
 protected:
     std::string repr_;
     int priority_;

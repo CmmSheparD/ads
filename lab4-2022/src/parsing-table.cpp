@@ -7,8 +7,6 @@
 
 using namespace std;
 
-namespace parsing {
-
 list<Component> ParsingTable::constants_;
 list<Component> ParsingTable::operators_;
 
@@ -36,7 +34,7 @@ void ParsingTable::register_operator(const std::string &name, int priority)
 {
     if (!is_valid_name(name))
         throw InvalidNameError(name);
-    operators_.push_back({name, priority, Component::kOperand});
+    operators_.push_back({name, priority, Component::kOperator});
 }
 
 
@@ -83,5 +81,3 @@ Component ParsingTable::get_operator(const std::string &name)
     }
     throw NameSearchError(name);
 }
-
-}   // namespace parsing

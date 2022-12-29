@@ -16,7 +16,7 @@ public:
     std::string asInfix();
     std::string asPostfix();
 private:
-    std::string asInfixHelper(BST<int, Component>::InfixIterator sub);
+    std::string asInfixHelper(BST<int, Component>::PrefixIterator &sub);
 
     BST<int, Component> tree_;
 };

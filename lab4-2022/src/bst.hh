@@ -68,10 +68,14 @@ public:
 };
 
 template<class Key, class Value>
-BST<Key, Value>::BST(const BST &other)
+BST<Key, Value>::BST(const BST &other) :
+    BST()
 {
     PrefixIterator it = other.prefixBegin();
-    insert(it.key(), *it);
+    while (it) {
+        insert(it.key(), *it);
+        ++it;
+    }
 }
 
 template<class Key, class Value>

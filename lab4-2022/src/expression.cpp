@@ -15,7 +15,7 @@ string Expression::asPrefix()
 
 string Expression::asInfix()
 {
-    BST<int, Component>::InfixIterator it = tree_.infixBegin();
+    BST<int, Component>::PrefixIterator it = tree_.prefixBegin();
     return asInfixHelper(it);
 }
 
@@ -30,14 +30,14 @@ string Expression::asPostfix()
     return res;
 }
 
-string Expression::asInfixHelper(BST<int, Component>::InfixIterator sub)
+string Expression::asInfixHelper(BST<int, Component>::PrefixIterator &sub)
 {
     Component c = *sub;
     if (c.getType() != Component::kOperator)
         return c.str();
-    ++sub;
     string res;
     bool enclosed = false;
+    ++sub;
     if ((*sub).getType() == Component::kOperator
         && (*sub).getPriority() > c.getPriority()) {
         res += "(";
@@ -60,4 +60,5 @@ string Expression::asInfixHelper(BST<int, Component>::InfixIterator sub)
         res += ")";
         enclosed = false;
     }
+    return res;
 }

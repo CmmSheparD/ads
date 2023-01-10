@@ -34,6 +34,6 @@
 build
 Лабораторная работа 1.odt
 Лабораторная работа 2.odt
-.editorconfig
 .vscode
 lab3-2022/data/set-*/data.txt
+result.txt

@@ -44,7 +44,7 @@ private:
     template<class K, class V>
     struct Node;
 
-    void deleteNode(std::shared_ptr<Node<Key, Value>> node);
+    void deleteNode(std::shared_ptr<Node<Key, Value>> &node);
     void height(std::shared_ptr<Node<Key, Value>> node, size_t &h, size_t &max) const;
 
     std::shared_ptr<Node<Key, Value>> root_;
@@ -221,7 +221,7 @@ void BST<Key, Value>::clear()
 }
 
 template<class Key, class Value>
-void BST<Key, Value>::deleteNode(std::shared_ptr<Node<Key, Value>> node)
+void BST<Key, Value>::deleteNode(std::shared_ptr<Node<Key, Value>> &node)
 {
     std::shared_ptr<Node<Key, Value>> candidate = nullptr;
     if (node->left != nullptr && node->right != nullptr) {
@@ -248,6 +248,7 @@ void BST<Key, Value>::deleteNode(std::shared_ptr<Node<Key, Value>> node)
         }
         if (root_ == node) root_ = nullptr;
     }
+    node = nullptr;
 }
 
 template<class Key, class Value>

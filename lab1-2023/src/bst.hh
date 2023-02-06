@@ -2,11 +2,8 @@
 #ifndef BST_HH
 #define BST_HH
 
-#include <cmath>
 #include <memory>
-#include <sstream>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
 template<class Key, class Value>

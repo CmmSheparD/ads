@@ -44,9 +44,6 @@ public:
     Value min() const;
     Value max() const;
 
-    Value findNext(Key key) const;
-    Value findPrev(Key key) const;
-
     size_t height() const;
     void clear();
 private:
@@ -200,26 +197,6 @@ Value BST<Key, Value>::max() const
     return cur->data;
 }
 
-// template<class Key, class Value>
-// Value BST<Key, Value>::findNext(Key key) const
-// {
-//     if (n_ == 0) throw EmptyContainerError();
-//     InfixIterator it = infixBegin();
-//     while (it && it.key() < key) ++it;
-//     if (it) return *++it;
-//     throw KeyError();
-// }
-
-// template<class Key, class Value>
-// Value BST<Key, Value>::findPrev(Key key) const
-// {
-//     if (n_ == 0) throw EmptyContainerError();
-//     InfixIterator it = infixBegin();
-//     while (it && it.key() < key) ++it;
-//     if (it) return *--it;
-//     throw KeyError();
-// }
-
 template<class Key, class Value>
 size_t BST<Key, Value>::height() const
 {
@@ -229,19 +206,19 @@ size_t BST<Key, Value>::height() const
     return maxHeight;
 }
 
-// template<class Key, class Value>
-// void BST<Key, Value>::clear()
-// {
-//     if (n_ == 0) return;
-//     n_ = 0;
-//     PostfixIterator it = postfixBegin();
-//     while (it) {
-//         Key key = it.key();
-//         ++it;
-//         remove(key);
-//     }
-//     root_ = nullptr;
-// }
+template<class Key, class Value>
+void BST<Key, Value>::clear()
+{
+    if (n_ == 0) return;
+    n_ = 0;
+    PostfixIterator it = postfixBegin();
+    while (it) {
+        Key key = it.key();
+        ++it;
+        remove(key);
+    }
+    root_ = nullptr;
+}
 
 template<class Key, class Value>
 void BST<Key, Value>::deleteNode(std::shared_ptr<Node> &node)
@@ -423,8 +400,6 @@ bool operator!=(const typename BST<Key, Value>::Iterator<IterationStrategy> &l,
 template<class Key, class Value>
 class BST<Key, Value>::PrefixIterationStrategy {
 public:
-    friend Iterator<PrefixIterationStrategy>;
-
     PrefixIterationStrategy() : came_from_(kTop) {}
     PrefixIterationStrategy(std::shared_ptr<Node> &start)
         : cur_(start), came_from_(kTop)
@@ -499,8 +474,6 @@ void BST<Key, Value>::PrefixIterationStrategy::proceed()
 template<class Key, class Value>
 class BST<Key, Value>::InfixIterationStrategy {
 public:
-    friend Iterator<InfixIterationStrategy>;
-
     InfixIterationStrategy() : came_from_(kTop) {}
     InfixIterationStrategy(std::shared_ptr<Node> &start);
     InfixIterationStrategy(const InfixIterationStrategy &other) = default;
@@ -582,8 +555,6 @@ void BST<Key, Value>::InfixIterationStrategy::proceed()
 template<class Key, class Value>
 class BST<Key, Value>::PostfixIterationStrategy {
 public:
-    friend Iterator<PostfixIterationStrategy>;
-
     PostfixIterationStrategy() : came_from_(kTop) {}
     PostfixIterationStrategy(std::shared_ptr<Node> &start);
     PostfixIterationStrategy(const PostfixIterationStrategy &other) = default;
@@ -672,8 +643,6 @@ void BST<Key, Value>::PostfixIterationStrategy::proceed()
 template<class Key, class Value>
 class BST<Key, Value>::BreadthIterationStrategy {
 public:
-    friend Iterator<BreadthIterationStrategy>;
-
     BreadthIterationStrategy() = default;
     BreadthIterationStrategy(std::shared_ptr<Node> &start);
     BreadthIterationStrategy(const BreadthIterationStrategy &other) = default;
